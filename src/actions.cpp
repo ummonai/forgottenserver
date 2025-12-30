@@ -46,7 +46,7 @@ Actions::~Actions()
 
 void Actions::clearMap(ActionUseMap& map, bool fromLua)
 {
-	for (auto it = map.begin(); it != map.end();) {
+	for (auto it = map.begin(); it != map.end(); ) {
 		if (fromLua == it->second.fromLua) {
 			it = map.erase(it);
 		} else {
@@ -352,7 +352,8 @@ ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_
 
 		if (bed->trySleep(player)) {
 			player->setBedItem(bed);
-			g_game.sendOfflineTrainingDialog(player);
+			bed->sleep(player);
+			//g_game.sendOfflineTrainingDialog(player);
 		}
 
 		return RETURNVALUE_NOERROR;
@@ -366,7 +367,6 @@ ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_
 			DepotLocker* myDepotLocker = player->getDepotLocker(depot->getDepotId());
 			myDepotLocker->setParent(depot->getParent()->getTile());
 			openContainer = myDepotLocker;
-			player->setLastDepotId(depot->getDepotId());
 		} else {
 			openContainer = container;
 		}
@@ -410,19 +410,17 @@ static void showUseHotkeyMessage(Player* player, const Item* item, uint32_t coun
 {
 	const ItemType& it = Item::items[item->getID()];
 	if (!it.showCount) {
-		player->sendTextMessage(MESSAGE_HOTKEY_PRESSED, fmt::format("Using one of {:s}...", item->getName()));
+		player->sendTextMessage(MESSAGE_INFO_DESCR, fmt::format("Using one of {:s}...",  item->getName()));
 	} else if (count == 1) {
-		player->sendTextMessage(MESSAGE_HOTKEY_PRESSED, fmt::format("Using the last {:s}...", item->getName()));
+		player->sendTextMessage(MESSAGE_INFO_DESCR, fmt::format("Using the last {:s}...",  item->getName()));
 	} else {
-		player->sendTextMessage(MESSAGE_HOTKEY_PRESSED, fmt::format("Using one of {:d} {:s}...", count, item->getPluralName()));
+		player->sendTextMessage(MESSAGE_INFO_DESCR, fmt::format("Using one of {:d} {:s}...", count, item->getPluralName()));
 	}
 }
 
 bool Actions::useItem(Player* player, const Position& pos, uint8_t index, Item* item, bool isHotkey)
 {
-	int32_t cooldown = g_config.getNumber(ConfigManager::ACTIONS_DELAY_INTERVAL);
-	player->setNextAction(OTSYS_TIME() + cooldown);
-	player->sendUseItemCooldown(cooldown);
+	player->setNextAction(OTSYS_TIME() + g_config.getNumber(ConfigManager::ACTIONS_DELAY_INTERVAL));
 
 	if (isHotkey) {
 		uint16_t subType = item->getSubType();
@@ -456,9 +454,7 @@ bool Actions::useItem(Player* player, const Position& pos, uint8_t index, Item* 
 bool Actions::useItemEx(Player* player, const Position& fromPos, const Position& toPos,
                         uint8_t toStackPos, Item* item, bool isHotkey, Creature* creature/* = nullptr*/)
 {
-	int32_t cooldown = g_config.getNumber(ConfigManager::EX_ACTIONS_DELAY_INTERVAL);
-	player->setNextAction(OTSYS_TIME() + cooldown);
-	player->sendUseItemCooldown(cooldown);
+	player->setNextAction(OTSYS_TIME() + g_config.getNumber(ConfigManager::EX_ACTIONS_DELAY_INTERVAL));
 
 	Action* action = getAction(item);
 	if (!action) {
@@ -513,13 +509,10 @@ bool Action::configureEvent(const pugi::xml_node& node)
 
 namespace {
 
-bool enterMarket(Player* player, Item*, const Position&, Thing*, const Position&, bool)
+bool enterMarket(Player*, Item*, const Position&, Thing*, const Position&, bool)
 {
-	if (player->getLastDepotId() == -1) {
-		return false;
-	}
 
-	player->sendMarketEnter(player->getLastDepotId());
+	//player->sendMarketEnter(player->getLastDepotId());
 	return true;
 }
 

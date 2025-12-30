@@ -130,7 +130,11 @@ class Player final : public Creature, public Cylinder
 			return this;
 		}
 
-		void setID() final;
+		void setID() override {
+			if (id == 0) {
+				id = playerAutoID++;
+			}
+		}
 
 		static MuteCountMap muteCountMap;
 
@@ -253,7 +257,7 @@ class Player final : public Creature, public Cylinder
 			return storeInbox;
 		}
 
-		uint32_t getClientIcons() const;
+		uint16_t getClientIcons() const;
 
 		const GuildWarVector& getGuildWarVector() const {
 			return guildWarVector;
@@ -361,13 +365,6 @@ class Player final : public Creature, public Cylinder
 			return inMarket;
 		}
 
-		void setLastDepotId(int16_t newId) {
-			lastDepotId = newId;
-		}
-		int16_t getLastDepotId() const {
-			return lastDepotId;
-		}
-
 		void resetIdleTime() {
 			idleTime = 0;
 		}
@@ -394,9 +391,6 @@ class Player final : public Creature, public Cylinder
 		}
 		uint32_t getMagicLevel() const {
 			return std::max<int32_t>(0, magLevel + varStats[STAT_MAGICPOINTS]);
-		}
-		uint32_t getSpecialMagicLevel(CombatType_t type) const {
-			return std::max<int32_t>(0, specialMagicLevelSkill[combatTypeToIndex(type)]);
 		}
 		uint32_t getBaseMagicLevel() const {
 			return magLevel;
@@ -505,12 +499,7 @@ class Player final : public Creature, public Cylinder
 			varSpecialSkills[skill] += modifier;
 		}
 
-		void setSpecialMagicLevelSkill(CombatType_t type, int32_t modifier) {
-			specialMagicLevelSkill[combatTypeToIndex(type)] += modifier;
-		}
-
 		void setVarStats(stats_t stat, int32_t modifier);
-
 		int32_t getDefaultStats(stats_t stat) const;
 
 		void addConditionSuppressions(uint32_t conditions);
@@ -623,9 +612,6 @@ class Player final : public Creature, public Cylinder
 		}
 		uint16_t getSkillLevel(uint8_t skill) const {
 			return std::max<int32_t>(0, skills[skill].level + varSkills[skill]);
-		}
-		uint16_t getSpecialMagicLevelSkill(CombatType_t type) const {
-			return std::max<int32_t>(0, specialMagicLevelSkill[combatTypeToIndex(type)]);
 		}
 		uint16_t getBaseSkill(uint8_t skill) const {
 			return skills[skill].level;
@@ -840,6 +826,16 @@ class Player final : public Creature, public Cylinder
 				client->sendCreatureShield(creature);
 			}
 		}
+		void sendCreatureType(uint32_t creatureId, uint8_t creatureType) {
+			if (client) {
+				client->sendCreatureType(creatureId, creatureType);
+			}
+		}
+		void sendCreatureHelpers(uint32_t creatureId, uint16_t helpers) {
+			if (client) {
+				client->sendCreatureHelpers(creatureId, helpers);
+			}
+		}
 		void sendSpellCooldown(uint8_t spellId, uint32_t time) {
 			if (client) {
 				client->sendSpellCooldown(spellId, time);
@@ -848,11 +844,6 @@ class Player final : public Creature, public Cylinder
 		void sendSpellGroupCooldown(SpellGroup_t groupId, uint32_t time) {
 			if (client) {
 				client->sendSpellGroupCooldown(groupId, time);
-			}
-		}
-		void sendUseItemCooldown(uint32_t time) {
-			if (client) {
-				client->sendUseItemCooldown(time);
 			}
 		}
 		void sendModalWindow(const ModalWindow& modalWindow);
@@ -878,7 +869,6 @@ class Player final : public Creature, public Cylinder
 				client->sendItems();
 			}
 		}
-		void openSavedContainers();
 
 		//event methods
 		void onUpdateTileItem(const Tile* tile, const Position& pos, const Item* oldItem,
@@ -980,6 +970,11 @@ class Player final : public Creature, public Cylinder
 		void sendTextMessage(const TextMessage& message) const {
 			if (client) {
 				client->sendTextMessage(message);
+			}
+		}
+		void sendColoredText(const ColoredText& text) const {
+			if (client) {
+				client->sendColoredText(text);
 			}
 		}
 		void sendReLoginWindow(uint8_t unfairFightReduction) const {
@@ -1166,10 +1161,6 @@ class Player final : public Creature, public Cylinder
 
 		void updateRegeneration();
 
-		const std::map<uint8_t, OpenContainer>& getOpenContainers() const {
-			return openContainers;
-		}
-
 	private:
 		std::forward_list<Condition*> getMuteConditions() const;
 
@@ -1299,7 +1290,6 @@ class Player final : public Creature, public Cylinder
 		int32_t varSkills[SKILL_LAST + 1] = {};
 		int32_t varSpecialSkills[SPECIALSKILL_LAST + 1] = {};
 		int32_t varStats[STAT_LAST + 1] = {};
-		std::array<int16_t, COMBAT_COUNT> specialMagicLevelSkill = {0};
 		int32_t purchaseCallback = -1;
 		int32_t saleCallback = -1;
 		int32_t MessageBufferCount = 0;
@@ -1312,7 +1302,6 @@ class Player final : public Creature, public Cylinder
 		uint16_t lastStatsTrainingTime = 0;
 		uint16_t staminaMinutes = 2520;
 		uint16_t maxWriteLen = 0;
-		int16_t lastDepotId = -1;
 
 		uint8_t soul = 0;
 		std::bitset<6> blessings;
@@ -1337,7 +1326,6 @@ class Player final : public Creature, public Cylinder
 		bool inventoryAbilities[CONST_SLOT_LAST + 1] = {};
 
 		static uint32_t playerAutoID;
-		static uint32_t playerIDLimit;
 
 		void updateItemsLight(bool internal = false);
 		int32_t getStepSpeed() const override {

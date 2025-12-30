@@ -25,13 +25,6 @@
 #include "creature.h"
 #include "tasks.h"
 
-enum SessionEndTypes_t : uint8_t {
-	SESSION_END_LOGOUT = 0,
-	SESSION_END_UNKNOWN = 1, // unknown, no difference from logout
-	SESSION_END_FORCECLOSE = 2,
-	SESSION_END_UNKNOWN2 = 3, // unknown, no difference from logout
-};
-
 class NetworkMessage;
 class Player;
 class Game;
@@ -60,13 +53,22 @@ struct TextMessage
 	TextMessage(MessageClasses type, std::string text) : type(type), text(std::move(text)) {}
 };
 
+struct ColoredText
+{
+	std::string text;
+	Position position;
+	TextColor_t color;
+	ColoredText() = default;
+	ColoredText(std::string text, Position position, TextColor_t color) : text(std::move(text)), position(std::move(position)), color(color) {}
+};
+
 class ProtocolGame final : public Protocol
 {
 	public:
 		// static protocol information
 		enum {server_sends_first = true};
 		enum {protocol_identifier = 0}; // Not required as we send first
-		enum {use_checksum = true};
+		enum {use_checksum = false};
 		static const char* protocol_name() {
 			return "gameworld protocol";
 		}
@@ -181,7 +183,7 @@ class ProtocolGame final : public Protocol
 		void sendOpenPrivateChannel(const std::string& receiver);
 		void sendToChannel(const Creature* creature, SpeakClasses type, const std::string& text, uint16_t channelId);
 		void sendPrivateMessage(const Player* speaker, SpeakClasses type, const std::string& text);
-		void sendIcons(uint32_t icons);
+		void sendIcons(uint16_t icons);
 		void sendFYIBox(const std::string& message);
 
 		void sendDistanceShoot(const Position& from, const Position& to, uint8_t type);
@@ -201,9 +203,9 @@ class ProtocolGame final : public Protocol
 		void sendCancelTarget();
 		void sendCreatureOutfit(const Creature* creature, const Outfit_t& outfit);
 		void sendStats();
-		void sendClientFeatures();
 		void sendBasicData();
 		void sendTextMessage(const TextMessage& message);
+		void sendColoredText(const ColoredText& coloredText);
 		void sendReLoginWindow(uint8_t unfairFightReduction);
 
 		void sendTutorial(uint8_t tutorialId);
@@ -212,12 +214,12 @@ class ProtocolGame final : public Protocol
 		void sendCreatureWalkthrough(const Creature* creature, bool walkthrough);
 		void sendCreatureShield(const Creature* creature);
 		void sendCreatureSkull(const Creature* creature);
+		void sendCreatureType(uint32_t creatureId, uint8_t creatureType);
+		void sendCreatureHelpers(uint32_t creatureId, uint16_t helpers);
 
 		void sendShop(Npc* npc, const ShopInfoList& itemList);
 		void sendCloseShop();
 		void sendSaleItemList(const std::list<ShopInfo>& shop);
-		void sendResourceBalance(const ResourceTypes_t resourceType, uint64_t amount);
-		void sendStoreBalance();
 		void sendMarketEnter(uint32_t depotId);
 		void sendMarketLeave();
 		void sendMarketBrowseItem(uint16_t itemId, const MarketOfferList& buyOffers, const MarketOfferList& sellOffers);
@@ -238,8 +240,6 @@ class ProtocolGame final : public Protocol
 		void sendVIP(uint32_t guid, const std::string& name, const std::string& description, uint32_t icon, bool notify, VipStatus_t status);
 		void sendVIPEntries();
 
-		void sendItemClasses();
-
 		void sendPendingStateEntered();
 		void sendEnterWorld();
 
@@ -247,13 +247,11 @@ class ProtocolGame final : public Protocol
 
 		void sendCreatureLight(const Creature* creature);
 		void sendWorldLight(LightInfo lightInfo);
-		void sendWorldTime();
 
 		void sendCreatureSquare(const Creature* creature, SquareColor_t color);
 
 		void sendSpellCooldown(uint8_t spellId, uint32_t time);
 		void sendSpellGroupCooldown(SpellGroup_t groupId, uint32_t time);
-		void sendUseItemCooldown(uint32_t time);
 
 		//tiles
 		void sendMapDescription(const Position& pos);
@@ -275,7 +273,6 @@ class ProtocolGame final : public Protocol
 		void sendRemoveContainerItem(uint8_t cid, uint16_t slot, const Item* lastItem);
 
 		void sendContainer(uint8_t cid, const Container* container, bool hasParent, uint16_t firstIndex);
-		void sendEmptyContainer(uint8_t cid);
 		void sendCloseContainer(uint8_t cid);
 
 		//inventory
@@ -284,9 +281,6 @@ class ProtocolGame final : public Protocol
 
 		//messages
 		void sendModalWindow(const ModalWindow& modalWindow);
-
-		//session end
-		void sendSessionEnd(SessionEndTypes_t reason);
 
 		//Help functions
 

@@ -73,34 +73,6 @@ bool Tile::hasProperty(const Item* exclude, ITEMPROPERTY prop) const
 	return false;
 }
 
-bool Tile::hasHeight(uint32_t n) const
-{
-	uint32_t height = 0;
-
-	if (ground) {
-		if (ground->hasProperty(CONST_PROP_HASHEIGHT)) {
-			++height;
-		}
-
-		if (n == height) {
-			return true;
-		}
-	}
-
-	if (const TileItemVector* items = getItemList()) {
-		for (const Item* item : *items) {
-			if (item->hasProperty(CONST_PROP_HASHEIGHT)) {
-				++height;
-			}
-
-			if (n == height) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
 size_t Tile::getCreatureCount() const
 {
 	if (const CreatureVector* creatures = getCreatures()) {
@@ -362,13 +334,13 @@ Thing* Tile::getTopVisibleThing(const Creature* creature)
 
 void Tile::onAddTileItem(Item* item)
 {
-	if (item->hasProperty(CONST_PROP_MOVEABLE) || item->getContainer()) {
+	/*if (item->hasProperty(CONST_PROP_MOVEABLE) || item->getContainer()) {
 		auto it = g_game.browseFields.find(this);
 		if (it != g_game.browseFields.end()) {
 			it->second->addItemBack(item);
 			item->setParent(it->second);
 		}
-	}
+	}*/
 
 	setTileFlags(item);
 
@@ -503,7 +475,7 @@ ReturnValue Tile::queryAdd(int32_t, const Thing& thing, uint32_t, uint32_t flags
 			return RETURNVALUE_NOTPOSSIBLE;
 		}
 
-		if (!ground) {
+		if (ground == nullptr) {
 			return RETURNVALUE_NOTPOSSIBLE;
 		}
 
@@ -583,12 +555,19 @@ ReturnValue Tile::queryAdd(int32_t, const Thing& thing, uint32_t, uint32_t flags
 				}
 			}
 
-			if (!player->getParent() && hasFlag(TILESTATE_NOLOGOUT)) {
+			const Tile* playerTile = player->getTile();
+			if (playerTile) {
+				int32_t playerTileHeight = playerTile->getHeight();
+				if (player->getPosition().z == getPosition().z && playerTileHeight < 3 && static_cast<int32_t>(getHeight()) - playerTileHeight >= 2) {
+					return RETURNVALUE_NOTPOSSIBLE;
+				}
+			}
+
+			if (player->getParent() == nullptr && hasFlag(TILESTATE_NOLOGOUT)) {
 				//player is trying to login to a "no logout" tile
 				return RETURNVALUE_NOTPOSSIBLE;
 			}
 
-			const Tile* playerTile = player->getTile();
 			if (playerTile && player->isPzLocked()) {
 				if (!playerTile->hasFlag(TILESTATE_PVPZONE)) {
 					//player is trying to enter a pvp zone while being pz-locked
@@ -652,7 +631,7 @@ ReturnValue Tile::queryAdd(int32_t, const Thing& thing, uint32_t, uint32_t flags
 		}
 
 		bool itemIsHangable = item->isHangable();
-		if (!ground && !itemIsHangable) {
+		if (ground == nullptr && !itemIsHangable) {
 			return RETURNVALUE_NOTPOSSIBLE;
 		}
 
@@ -728,7 +707,7 @@ ReturnValue Tile::queryRemove(const Thing& thing, uint32_t count, uint32_t flags
 	}
 
 	const Item* item = thing.getItem();
-	if (!item) {
+	if (item == nullptr) {
 		return RETURNVALUE_NOTPOSSIBLE;
 	}
 
@@ -825,7 +804,7 @@ Tile* Tile::queryDestination(int32_t&, const Thing&, Item** destItem, uint32_t& 
 		destTile = g_game.map.getTile(dx, dy, dz);
 	}
 
-	if (!destTile) {
+	if (destTile == nullptr) {
 		destTile = this;
 	} else {
 		flags |= FLAG_NOLIMIT; //Will ignore that there is blocking items/creatures
@@ -856,10 +835,10 @@ void Tile::addThing(int32_t, Thing* thing)
 
 		creature->setParent(this);
 		CreatureVector* creatures = makeCreatures();
-		creatures->insert(creatures->begin(), creature);
+		creatures->insert(creatures->end(), creature);
 	} else {
 		Item* item = thing->getItem();
-		if (!item) {
+		if (item == nullptr) {
 			return /*RETURNVALUE_NOTPOSSIBLE*/;
 		}
 
@@ -872,7 +851,7 @@ void Tile::addThing(int32_t, Thing* thing)
 
 		const ItemType& itemType = Item::items[item->getID()];
 		if (itemType.isGroundTile()) {
-			if (!ground) {
+			if (ground == nullptr) {
 				ground = item;
 				onAddTileItem(item);
 			} else {
@@ -965,7 +944,7 @@ void Tile::updateThing(Thing* thing, uint16_t itemId, uint32_t count)
 	}
 
 	Item* item = thing->getItem();
-	if (!item) {
+	if (item == nullptr) {
 		return /*RETURNVALUE_NOTPOSSIBLE*/;
 	}
 
@@ -983,7 +962,7 @@ void Tile::replaceThing(uint32_t index, Thing* thing)
 	int32_t pos = index;
 
 	Item* item = thing->getItem();
-	if (!item) {
+	if (item == nullptr) {
 		return /*RETURNVALUE_NOTPOSSIBLE*/;
 	}
 
@@ -1435,16 +1414,16 @@ void Tile::internalAddThing(uint32_t, Thing* thing)
 		}
 
 		CreatureVector* creatures = makeCreatures();
-		creatures->insert(creatures->begin(), creature);
+		creatures->insert(creatures->end(), creature);
 	} else {
 		Item* item = thing->getItem();
-		if (!item) {
+		if (item == nullptr) {
 			return;
 		}
 
 		const ItemType& itemType = Item::items[item->getID()];
 		if (itemType.isGroundTile()) {
-			if (!ground) {
+			if (ground == nullptr) {
 				ground = item;
 				setTileFlags(item);
 			}
@@ -1535,6 +1514,10 @@ void Tile::setTileFlags(const Item* item)
 	if (item->hasProperty(CONST_PROP_SUPPORTHANGABLE)) {
 		setFlag(TILESTATE_SUPPORTS_HANGABLE);
 	}
+
+	if (item->hasProperty(CONST_PROP_HASHEIGHT)) {
+		height++;
+	}
 }
 
 void Tile::resetTileFlags(const Item* item)
@@ -1595,6 +1578,10 @@ void Tile::resetTileFlags(const Item* item)
 
 	if (item->hasProperty(CONST_PROP_SUPPORTHANGABLE)) {
 		resetFlag(TILESTATE_SUPPORTS_HANGABLE);
+	}
+
+	if (item->hasProperty(CONST_PROP_HASHEIGHT) && height > 0) {
+		height--;
 	}
 }
 

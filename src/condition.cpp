@@ -321,7 +321,8 @@ bool Condition::isPersistent() const
 
 uint32_t Condition::getIcons() const
 {
-	return isBuff ? ICON_PARTY_BUFF : 0;
+	//return isBuff ? ICON_PARTY_BUFF : 0;
+	return 0;
 }
 
 bool Condition::updateCondition(const Condition* addCondition)
@@ -794,7 +795,7 @@ int32_t ConditionAttributes::getParam(ConditionParam_t param)
 		case CONDITION_PARAM_SKILL_FISHING:
 			return skills[SKILL_FISHING];
 
-		case CONDITION_PARAM_SKILL_FISHINGPERCENT:
+		case CONDITION_PARAM_SKILL_FISHINGPERCENT: 
 			return skillsPercent[SKILL_FISHING];
 
 		case CONDITION_PARAM_STAT_MAXHITPOINTS:
@@ -899,9 +900,9 @@ bool ConditionRegeneration::executeCondition(Creature* creature, int32_t interva
 	if (internalHealthTicks >= healthTicks) {
 		internalHealthTicks = 0;
 
-		int32_t realHealthGain = creature->getHealth();
+		//int32_t realHealthGain = creature->getHealth();
 		creature->changeHealth(healthGain);
-		realHealthGain = creature->getHealth() - realHealthGain;
+		/*realHealthGain = creature->getHealth() - realHealthGain;
 
 		if (isBuff && realHealthGain > 0) {
 			Player* player = creature->getPlayer();
@@ -926,17 +927,18 @@ bool ConditionRegeneration::executeCondition(Creature* creature, int32_t interva
 				}
 			}
 		}
+		*/
 	}
 
 	if (internalManaTicks >= manaTicks) {
 		internalManaTicks = 0;
 
 		if (Player* player = creature->getPlayer()) {
-			int32_t realManaGain = player->getMana();
+			//int32_t realManaGain = player->getMana();
 			player->changeMana(manaGain);
-			realManaGain = player->getMana() - realManaGain;
+			//realManaGain = player->getMana() - realManaGain;
 
-			if (isBuff && realManaGain > 0) {
+			/*if (isBuff && realManaGain > 0) {
 				std::string manaGainString = std::to_string(realManaGain);
 
 				TextMessage message(MESSAGE_HEALED, "You gained " + manaGainString + " mana.");
@@ -955,7 +957,7 @@ bool ConditionRegeneration::executeCondition(Creature* creature, int32_t interva
 						spectator->getPlayer()->sendTextMessage(message);
 					}
 				}
-			}
+			}*/
 		}
 	}
 
@@ -1680,15 +1682,13 @@ bool ConditionInvisible::startCondition(Creature* creature)
 		return false;
 	}
 
-	if (!creature->isInGhostMode()) {
-		g_game.internalCreatureChangeVisible(creature, false);
-	}
+	g_game.internalCreatureChangeVisible(creature, false);
 	return true;
 }
 
 void ConditionInvisible::endCondition(Creature* creature)
 {
-	if (!creature->isInGhostMode() && !creature->isInvisible()) {
+	if (!creature->isInvisible()) {
 		g_game.internalCreatureChangeVisible(creature, true);
 	}
 }
@@ -1879,17 +1879,17 @@ void ConditionLight::serialize(PropWriteStream& propWriteStream)
 	propWriteStream.write<uint32_t>(lightChangeInterval);
 }
 
-void ConditionSpellCooldown::addCondition(Creature* creature, const Condition* condition)
+void ConditionSpellCooldown::addCondition(Creature*, const Condition* condition)
 {
 	if (updateCondition(condition)) {
 		setTicks(condition->getTicks());
 
-		if (subId != 0 && ticks > 0) {
+		/*if (subId != 0 && ticks > 0) {
 			Player* player = creature->getPlayer();
 			if (player) {
 				player->sendSpellCooldown(subId, ticks);
 			}
-		}
+		}*/
 	}
 }
 
@@ -1899,26 +1899,26 @@ bool ConditionSpellCooldown::startCondition(Creature* creature)
 		return false;
 	}
 
-	if (subId != 0 && ticks > 0) {
+	/*if (subId != 0 && ticks > 0) {
 		Player* player = creature->getPlayer();
 		if (player) {
 			player->sendSpellCooldown(subId, ticks);
 		}
-	}
+	}*/
 	return true;
 }
 
-void ConditionSpellGroupCooldown::addCondition(Creature* creature, const Condition* condition)
+void ConditionSpellGroupCooldown::addCondition(Creature*, const Condition* condition)
 {
 	if (updateCondition(condition)) {
 		setTicks(condition->getTicks());
 
-		if (subId != 0 && ticks > 0) {
+		/*if (subId != 0 && ticks > 0) {
 			Player* player = creature->getPlayer();
 			if (player) {
 				player->sendSpellGroupCooldown(static_cast<SpellGroup_t>(subId), ticks);
 			}
-		}
+		}*/
 	}
 }
 
@@ -1928,12 +1928,12 @@ bool ConditionSpellGroupCooldown::startCondition(Creature* creature)
 		return false;
 	}
 
-	if (subId != 0 && ticks > 0) {
+	/*if (subId != 0 && ticks > 0) {
 		Player* player = creature->getPlayer();
 		if (player) {
 			player->sendSpellGroupCooldown(static_cast<SpellGroup_t>(subId), ticks);
 		}
-	}
+	}*/
 	return true;
 }
 

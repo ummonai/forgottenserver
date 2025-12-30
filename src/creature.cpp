@@ -496,7 +496,7 @@ void Creature::onCreatureMove(Creature* creature, const Tile* newTile, const Pos
 				lastStepCost = 2;
 			} else if (Position::getDistanceX(newPos, oldPos) >= 1 && Position::getDistanceY(newPos, oldPos) >= 1) {
 				//diagonal extra cost
-				lastStepCost = 3;
+				lastStepCost = getPlayer() ? 2 : 3;
 			}
 		} else {
 			stopEventWalk();
@@ -712,7 +712,7 @@ void Creature::onDeath()
 	if (mostDamageCreature) {
 		if (mostDamageCreature != lastHitCreature && mostDamageCreature != lastHitCreatureMaster) {
 			Creature* mostDamageCreatureMaster = mostDamageCreature->getMaster();
-			if (lastHitCreature != mostDamageCreatureMaster && (!lastHitCreatureMaster || mostDamageCreatureMaster != lastHitCreatureMaster)) {
+			if (lastHitCreature != mostDamageCreatureMaster && (lastHitCreatureMaster == nullptr || mostDamageCreatureMaster != lastHitCreatureMaster)) {
 				mostDamageUnjustified = mostDamageCreature->onKilledCreature(this, false);
 			}
 		}
@@ -751,10 +751,6 @@ bool Creature::dropCorpse(Creature* lastHitCreature, Creature* mostDamageCreatur
 
 			case RACE_BLOOD:
 				splash = Item::CreateItem(ITEM_FULLSPLASH, FLUID_BLOOD);
-				break;
-
-			case RACE_INK:
-				splash = Item::CreateItem(ITEM_FULLSPLASH, FLUID_INK);
 				break;
 
 			default:
@@ -1150,13 +1146,17 @@ void Creature::onGainExperience(uint64_t gainExp, Creature* target)
 		return;
 	}
 
-	TextMessage message(MESSAGE_EXPERIENCE_OTHERS, ucfirst(getNameDescription()) + " gained " + std::to_string(gainExp) + (gainExp != 1 ? " experience points." : " experience point."));
+	/*TextMessage message(MESSAGE_EXPERIENCE_OTHERS, ucfirst(getNameDescription()) + " gained " + std::to_string(gainExp) + (gainExp != 1 ? " experience points." : " experience point."));
 	message.position = position;
 	message.primary.color = TEXTCOLOR_WHITE_EXP;
-	message.primary.value = gainExp;
+	message.primary.value = gainExp;*/
+
+	TextMessage message(MESSAGE_STATUS_SMALL, ucfirst(getNameDescription()) + " gained " + std::to_string(gainExp) + (gainExp != 1 ? " experience points." : " experience point."));
+	ColoredText coloredText(std::to_string(gainExp), position, TEXTCOLOR_WHITE_EXP);
 
 	for (Creature* spectator : spectators) {
 		spectator->getPlayer()->sendTextMessage(message);
+		spectator->getPlayer()->sendColoredText(coloredText);
 	}
 }
 
@@ -1185,7 +1185,7 @@ bool Creature::setMaster(Creature* newMaster) {
 
 bool Creature::addCondition(Condition* condition, bool force/* = false*/)
 {
-	if (!condition) {
+	if (condition == nullptr) {
 		return false;
 	}
 
@@ -1396,7 +1396,7 @@ int64_t Creature::getStepDuration(Direction dir) const
 {
 	int64_t stepDuration = getStepDuration();
 	if ((dir & DIRECTION_DIAGONAL_MASK) != 0) {
-		stepDuration *= 3;
+		stepDuration *= 2;
 	}
 	return stepDuration;
 }
@@ -1407,7 +1407,7 @@ int64_t Creature::getStepDuration() const
 		return 0;
 	}
 
-	uint32_t calculatedStepSpeed;
+	/*uint32_t calculatedStepSpeed;
 	uint32_t groundSpeed;
 
 	int32_t stepSpeed = getStepSpeed();
@@ -1418,7 +1418,10 @@ int64_t Creature::getStepDuration() const
 		}
 	} else {
 		calculatedStepSpeed = 1;
-	}
+	}*/
+
+	uint32_t groundSpeed;
+	int32_t stepSpeed = getStepSpeed();
 
 	Item* ground = tile->getGround();
 	if (ground) {
@@ -1430,12 +1433,14 @@ int64_t Creature::getStepDuration() const
 		groundSpeed = 150;
 	}
 
-	double duration = std::floor(1000 * groundSpeed / calculatedStepSpeed);
+	//double duration = std::floor(1000 * groundSpeed / calculatedStepSpeed);
+	//int64_t stepDuration = std::ceil(duration / 50) * 50;
+	double duration = std::floor(1000 * groundSpeed) / stepSpeed;
 	int64_t stepDuration = std::ceil(duration / 50) * 50;
 
 	const Monster* monster = getMonster();
 	if (monster && monster->isTargetNearby() && !monster->isFleeing() && !monster->getMaster()) {
-		stepDuration *= 2;
+		stepDuration *= 3;
 	}
 
 	return stepDuration;

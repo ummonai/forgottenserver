@@ -21,12 +21,12 @@
 #define FS_DEFINITIONS_H_877452FEC245450C9F96B8FD268D8963
 
 static constexpr auto STATUS_SERVER_NAME = "The Forgotten Server";
-static constexpr auto STATUS_SERVER_VERSION = "1.5";
+static constexpr auto STATUS_SERVER_VERSION = "1.5 (Nekiro's 7.72 downgrade)";
 static constexpr auto STATUS_SERVER_DEVELOPERS = "Mark Samman";
 
-static constexpr auto CLIENT_VERSION_MIN = 1280;
-static constexpr auto CLIENT_VERSION_MAX = 1281;
-static constexpr auto CLIENT_VERSION_STR = "12.81";
+static constexpr auto CLIENT_VERSION_MIN = 760;
+static constexpr auto CLIENT_VERSION_MAX = 772;
+static constexpr auto CLIENT_VERSION_STR = "7.72";
 
 static constexpr auto AUTHENTICATOR_DIGITS = 6U;
 static constexpr auto AUTHENTICATOR_PERIOD = 30U;
@@ -65,6 +65,7 @@ static constexpr auto AUTHENTICATOR_PERIOD = 30U;
 #pragma warning(disable:4319) // '~': zero extending 'unsigned int' to 'lua_Number' of greater size
 #pragma warning(disable:4351) // new behavior: elements of array will be default initialized
 #pragma warning(disable:4458) // declaration hides class member
+#pragma warning(disable:4996) // inet_addr conversion
 #endif
 
 #define strcasecmp _stricmp

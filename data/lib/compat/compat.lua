@@ -25,10 +25,6 @@ THING_TYPE_NPC = CREATURETYPE_NPC + 1
 
 COMBAT_POISONDAMAGE = COMBAT_EARTHDAMAGE
 CONDITION_EXHAUST = CONDITION_EXHAUST_WEAPON
-MESSAGE_STATUS_CONSOLE_BLUE = MESSAGE_INFO_DESCR
-MESSAGE_STATUS_CONSOLE_RED = MESSAGE_STATUS_WARNING
-MESSAGE_EVENT_ORANGE = MESSAGE_STATUS_WARNING
-MESSAGE_STATUS_CONSOLE_ORANGE = MESSAGE_STATUS_WARNING
 TALKTYPE_ORANGE_1 = TALKTYPE_MONSTER_SAY
 TALKTYPE_ORANGE_2 = TALKTYPE_MONSTER_YELL
 
@@ -40,8 +36,6 @@ SOUTHWEST = DIRECTION_SOUTHWEST
 SOUTHEAST = DIRECTION_SOUTHEAST
 NORTHWEST = DIRECTION_NORTHWEST
 NORTHEAST = DIRECTION_NORTHEAST
-
-SPEECHBUBBLE_QUESTTRADER = SPEECHBUBBLE_QUEST
 
 do
 	local function CreatureIndex(self, key)
@@ -1114,17 +1108,20 @@ function doTeleportThing(uid, dest, pushMovement)
 	if type(uid) == "userdata" then
 		if uid:isCreature() then
 			return uid:teleportTo(dest, pushMovement or false)
+		else
+			return uid:moveTo(dest)
 		end
-
-		return uid:moveTo(dest)
 	else
-		local thing = getThing(uid)
-		if thing then
-			if thing:isCreature() then
-				return thing:teleportTo(dest, pushMovement or false)
+		if uid >= 0x10000000 then
+			local creature = Creature(uid)
+			if creature then
+				return creature:teleportTo(dest, pushMovement or false)
 			end
-
-			return thing:moveTo(dest)
+		else
+			local item = Item(uid)
+			if item then
+				return item:moveTo(dest)
+			end
 		end
 	end
 	return false
@@ -1133,7 +1130,11 @@ end
 function getThingPos(uid)
 	local thing
 	if type(uid) ~= "userdata" then
-		thing = getThing(uid)
+		if uid >= 0x10000000 then
+			thing = Creature(uid)
+		else
+			thing = Item(uid)
+		end
 	else
 		thing = uid
 	end
@@ -1210,7 +1211,7 @@ function doRelocate(fromPos, toPos)
 end
 
 function getThing(uid)
-	return uid >= CREATURE_ID_MIN and pushThing(Creature(uid)) or pushThing(Item(uid))
+	return uid >= 0x10000000 and pushThing(Creature(uid)) or pushThing(Item(uid))
 end
 
 function getConfigInfo(info)

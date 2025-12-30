@@ -85,6 +85,7 @@ class Container : public Item, public Cylinder
 
 		Attr_ReadValue readAttr(AttrTypes_t attr, PropStream& propStream) override;
 		bool unserializeItemNode(OTB::Loader& loader, const OTB::Node& node, PropStream& propStream) override;
+		std::string getContentDescription() const;
 
 		size_t size() const {
 			return itemlist.size();
@@ -164,6 +165,8 @@ class Container : public Item, public Cylinder
 		ItemDeque itemlist;
 
 	private:
+		std::ostringstream& getContentDescription(std::ostringstream& os) const;
+
 		uint32_t maxSize;
 		uint32_t totalWeight = 0;
 		uint32_t serializationCount = 0;

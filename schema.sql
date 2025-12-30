@@ -27,11 +27,6 @@ CREATE TABLE IF NOT EXISTS `players` (
   `looklegs` int NOT NULL DEFAULT '0',
   `looktype` int NOT NULL DEFAULT '136',
   `lookaddons` int NOT NULL DEFAULT '0',
-  `lookmount` int NOT NULL DEFAULT '0',
-  `lookmounthead` int NOT NULL DEFAULT '0',
-  `lookmountbody` int NOT NULL DEFAULT '0',
-  `lookmountlegs` int NOT NULL DEFAULT '0',
-  `lookmountfeet` int NOT NULL DEFAULT '0',
   `direction` tinyint unsigned NOT NULL DEFAULT '2',
   `maglevel` int NOT NULL DEFAULT '0',
   `mana` int NOT NULL DEFAULT '0',
@@ -238,7 +233,7 @@ CREATE TABLE IF NOT EXISTS `market_history` (
   `sale` tinyint NOT NULL DEFAULT '0',
   `itemtype` smallint unsigned NOT NULL,
   `amount` smallint unsigned NOT NULL,
-  `price` bigint unsigned NOT NULL DEFAULT '0',
+  `price` int unsigned NOT NULL DEFAULT '0',
   `expires_at` bigint unsigned NOT NULL,
   `inserted` bigint unsigned NOT NULL,
   `state` tinyint unsigned NOT NULL,
@@ -255,7 +250,7 @@ CREATE TABLE IF NOT EXISTS `market_offers` (
   `amount` smallint unsigned NOT NULL,
   `created` bigint unsigned NOT NULL,
   `anonymous` tinyint NOT NULL DEFAULT '0',
-  `price` bigint unsigned NOT NULL DEFAULT '0',
+  `price` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `sale` (`sale`,`itemtype`),
   KEY `created` (`created`),
@@ -280,6 +275,17 @@ CREATE TABLE IF NOT EXISTS `player_deaths` (
   FOREIGN KEY (`player_id`) REFERENCES `players`(`id`) ON DELETE CASCADE,
   KEY `killed_by` (`killed_by`),
   KEY `mostdamage_by` (`mostdamage_by`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8;
+
+CREATE TABLE IF NOT EXISTS `player_depotlockeritems` (
+  `player_id` int NOT NULL,
+  `sid` int NOT NULL COMMENT 'any given range eg 0-100 will be reserved for depot lockers and all > 100 will be then normal items inside depots',
+  `pid` int NOT NULL DEFAULT '0',
+  `itemtype` smallint NOT NULL,
+  `count` smallint NOT NULL DEFAULT '0',
+  `attributes` blob NOT NULL,
+  UNIQUE KEY `player_id_2` (`player_id`, `sid`),
+  FOREIGN KEY (`player_id`) REFERENCES `players`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8;
 
 CREATE TABLE IF NOT EXISTS `player_depotitems` (
@@ -362,7 +368,7 @@ CREATE TABLE IF NOT EXISTS `towns` (
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8;
 
-INSERT INTO `server_config` (`config`, `value`) VALUES ('db_version', '31'), ('motd_hash', ''), ('motd_num', '0'), ('players_record', '0');
+INSERT INTO `server_config` (`config`, `value`) VALUES ('db_version', '29'), ('motd_hash', ''), ('motd_num', '0'), ('players_record', '0');
 
 DROP TRIGGER IF EXISTS `ondelete_players`;
 DROP TRIGGER IF EXISTS `oncreate_guilds`;

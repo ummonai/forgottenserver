@@ -23,8 +23,6 @@ local fluidMessage = {
 	[FLUID_MEAD] = "Aaaah..."
 }
 
-local distillery = {[5513] = 5469, [5514] = 5470}
-
 function onUse(player, item, fromPosition, target, toPosition, isHotkey)
 	local targetItemType = ItemType(target.itemid)
 	if targetItemType and targetItemType:isFluidContainer() then

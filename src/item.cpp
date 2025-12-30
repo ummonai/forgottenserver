@@ -36,6 +36,7 @@ extern Spells* g_spells;
 extern Vocations g_vocations;
 
 Items Item::items;
+uint32_t Item::mapVersion = 1; //default map version for 7.72
 
 Item* Item::CreateItem(const uint16_t type, uint16_t count /*= 0*/)
 {
@@ -73,12 +74,12 @@ Item* Item::CreateItem(const uint16_t type, uint16_t count /*= 0*/)
 			newItem = new Item(type - 2, count);
 		} else if (it.id >= 2202 && it.id <= 2206) { // magic rings
 			newItem = new Item(type - 37, count);
-		} else if (it.id == 2640) { // soft boots
+		/*} else if (it.id == 2640) { // soft boots
 			newItem = new Item(6132, count);
 		} else if (it.id == 6301) { // death ring
 			newItem = new Item(6300, count);
 		} else if (it.id == 18528) { // prismatic ring
-			newItem = new Item(18408, count);
+			newItem = new Item(18408, count);*/
 		} else {
 			newItem = new Item(type, count);
 		}
@@ -141,7 +142,17 @@ Item* Item::CreateItem(PropStream& propStream)
 			break;
 	}
 
-	return Item::CreateItem(id, 0);
+    const ItemType& iType = items[id];
+    uint8_t count = 0;
+    if (mapVersion == 0) {
+        if (iType.stackable || iType.isSplash() || iType.isFluidContainer()) {
+            if (!propStream.read<uint8_t>(count)) {
+                return nullptr;
+            }
+        }
+    }
+
+    return Item::CreateItem(id, count);
 }
 
 Item::Item(const uint16_t type, uint16_t count /*= 0*/) :
@@ -280,7 +291,7 @@ Cylinder* Item::getTopParent()
 		return prevaux;
 	}
 
-	while (aux->getParent()) {
+	while (aux->getParent() != nullptr) {
 		prevaux = aux;
 		aux = aux->getParent();
 	}
@@ -299,7 +310,7 @@ const Cylinder* Item::getTopParent() const
 		return prevaux;
 	}
 
-	while (aux->getParent()) {
+	while (aux->getParent() != nullptr) {
 		prevaux = aux;
 		aux = aux->getParent();
 	}
@@ -616,16 +627,6 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream& propStream)
 			break;
 		}
 
-		case ATTR_OPENCONTAINER: {
-			uint8_t openContainer;
-			if (!propStream.read<uint8_t>(openContainer)) {
-				return ATTR_READ_ERROR;
-			}
-
-			setIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER, openContainer);
-			break;
-		}
-
 		//these should be handled through derived classes
 		//If these are called then something has changed in the items.xml since the map was saved
 		//just read the values
@@ -851,11 +852,6 @@ void Item::serializeAttr(PropWriteStream& propWriteStream) const
 		propWriteStream.write<uint8_t>(getIntAttr(ITEM_ATTRIBUTE_STOREITEM));
 	}
 
-	if (hasAttribute(ITEM_ATTRIBUTE_OPENCONTAINER)) {
-		propWriteStream.write<uint8_t>(ATTR_OPENCONTAINER);
-		propWriteStream.write<uint8_t>(getIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER));
-	}
-
 	if (hasAttribute(ITEM_ATTRIBUTE_CUSTOM)) {
 		const ItemAttributes::CustomAttributeMap* customAttrMap = attributes->getCustomAttributeMap();
 		propWriteStream.write<uint8_t>(ATTR_CUSTOM_ATTRIBUTES);
@@ -912,56 +908,13 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 	}
 
 	if (it.isRune()) {
-		if (it.runeLevel > 0 || it.runeMagLevel > 0) {
-			if (RuneSpell* rune = g_spells->getRuneSpell(it.id)) {
-				int32_t tmpSubType = subType;
-				if (item) {
-					tmpSubType = item->getSubType();
-				}
-				s << " (\"" << it.runeSpellName << "\"). " << (it.stackable && tmpSubType > 1 ? "They" : "It") << " can only be used by ";
+		if (g_spells->getRuneSpell(it.id)) {
+			if (it.runeMagLevel > 0) {
+				s << " for magic level " << it.runeMagLevel;
+			}
 
-				const VocSpellMap& vocMap = rune->getVocMap();
-				std::vector<Vocation*> showVocMap;
-
-				// vocations are usually listed with the unpromoted and promoted version, the latter being
-				// hidden from description, so `total / 2` is most likely the amount of vocations to be shown.
-				showVocMap.reserve(vocMap.size() / 2);
-				for (const auto& voc : vocMap) {
-					if (voc.second) {
-						showVocMap.push_back(g_vocations.getVocation(voc.first));
-					}
-				}
-
-				if (!showVocMap.empty()) {
-					auto vocIt = showVocMap.begin(), vocLast = (showVocMap.end() - 1);
-					while (vocIt != vocLast) {
-						s << asLowerCaseString((*vocIt)->getVocName()) << "s";
-						if (++vocIt == vocLast) {
-							s << " and ";
-						} else {
-							s << ", ";
-						}
-					}
-					s << asLowerCaseString((*vocLast)->getVocName()) << "s";
-				} else {
-					s << "players";
-				}
-
-				s << " with";
-
-				if (it.runeLevel > 0) {
-					s << " level " << it.runeLevel;
-				}
-
-				if (it.runeMagLevel > 0) {
-					if (it.runeLevel > 0) {
-						s << " and";
-					}
-
-					s << " magic level " << it.runeMagLevel;
-				}
-
-				s << " or higher";
+			if (!it.runeSpellName.empty()) {
+				s << ". It's an \"" << it.runeSpellName << "\" spell (" << (item ? item->getCharges() : it.charges) << "x)";
 			}
 		}
 	} else if (it.weaponType != WEAPON_NONE) {
@@ -1084,42 +1037,7 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 				s << "magic level " << std::showpos << it.abilities->stats[STAT_MAGICPOINTS] << std::noshowpos;
 			}
 
-			int16_t show = it.abilities->specialMagicLevelSkill[0];
-			if (show != 0) {
-				for (size_t i = 1; i < COMBAT_COUNT; ++i) {
-					if (it.abilities->absorbPercent[i] != show) {
-						show = 0;
-						break;
-					}
-				}
-			}
-
-			if (show == 0) {
-				bool tmp = true;
-
-				for (size_t i = 0; i < COMBAT_COUNT; ++i) {
-					if (it.abilities->specialMagicLevelSkill[i] == 0) {
-						continue;
-					}
-
-					if (tmp) {
-						tmp = false;
-
-						if (begin) {
-							begin = false;
-							s << " (";
-						} else {
-							s << ", ";
-						}
-					} else {
-						s << ", ";
-					}
-
-					s << getCombatName(indexToCombatType(i)) << " magic level " << std::showpos << it.abilities->specialMagicLevelSkill[i] << std::noshowpos;
-				}
-			}
-
-			show = it.abilities->absorbPercent[0];
+			int16_t show = it.abilities->absorbPercent[0];
 			if (show != 0) {
 				for (size_t i = 1; i < COMBAT_COUNT; ++i) {
 					if (it.abilities->absorbPercent[i] != show) {
@@ -1262,42 +1180,7 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 				s << "magic level " << std::showpos << it.abilities->stats[STAT_MAGICPOINTS] << std::noshowpos;
 			}
 
-			int16_t show = it.abilities->specialMagicLevelSkill[0];
-			if (show != 0) {
-				for (size_t i = 1; i < COMBAT_COUNT; ++i) {
-					if (it.abilities->absorbPercent[i] != show) {
-						show = 0;
-						break;
-					}
-				}
-			}
-
-			if (show == 0) {
-				bool tmp = true;
-
-				for (size_t i = 0; i < COMBAT_COUNT; ++i) {
-					if (it.abilities->specialMagicLevelSkill[i] == 0) {
-						continue;
-					}
-
-					if (tmp) {
-						tmp = false;
-
-						if (begin) {
-							begin = false;
-							s << " (";
-						} else {
-							s << ", ";
-						}
-					} else {
-						s << ", ";
-					}
-
-					s << getCombatName(indexToCombatType(i)) << " magic level " << std::showpos << it.abilities->specialMagicLevelSkill[i] << std::noshowpos;
-				}
-			}
-
-			show = it.abilities->absorbPercent[0];
+			int16_t show = it.abilities->absorbPercent[0];
 			if (show != 0) {
 				for (size_t i = 1; i < COMBAT_COUNT; ++i) {
 					if (it.abilities->absorbPercent[i] != show) {
@@ -1546,11 +1429,6 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 		if (!text || text->empty()) {
 			s << '.';
 		}
-	}
-
-	if (it.classification > 0) {
-		//TODO: tiers
-		s << std::endl << "Classification: " << static_cast<uint16_t>(it.classification) << " Tier: 0";
 	}
 
 	if (it.wieldInfo != 0) {
@@ -1862,7 +1740,7 @@ void Item::startDecaying()
 
 bool Item::hasMarketAttributes() const
 {
-	if (!attributes) {
+	if (attributes == nullptr) {
 		return true;
 	}
 

@@ -122,8 +122,8 @@ void sighupHandler()
 	g_game.quests.reload();
 	std::cout << "Reloaded quests." << std::endl;
 
-	g_game.mounts.reload();
-	std::cout << "Reloaded mounts." << std::endl;
+	//g_game.mounts.reload();
+	//std::cout << "Reloaded mounts." << std::endl;
 
 	g_globalEvents->reload();
 	std::cout << "Reloaded globalevents." << std::endl;
@@ -152,7 +152,7 @@ void sigintHandler()
 // https://github.com/otland/forgottenserver/pull/2473
 void dispatchSignalHandler(int signal)
 {
-	switch (signal) {
+	switch(signal) {
 		case SIGINT: //Shuts the server down
 			g_dispatcher.addTask(createTask(sigintHandler));
 			break;

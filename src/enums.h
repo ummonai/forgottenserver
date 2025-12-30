@@ -93,7 +93,6 @@ enum itemAttrTypes : uint32_t {
 	ITEM_ATTRIBUTE_WRAPID = 1 << 24,
 	ITEM_ATTRIBUTE_STOREITEM = 1 << 25,
 	ITEM_ATTRIBUTE_ATTACK_SPEED = 1 << 26,
-	ITEM_ATTRIBUTE_OPENCONTAINER = 1 << 27,
 
 	ITEM_ATTRIBUTE_CUSTOM = 1U << 31
 };
@@ -101,8 +100,7 @@ enum itemAttrTypes : uint32_t {
 enum VipStatus_t : uint8_t {
 	VIPSTATUS_OFFLINE = 0,
 	VIPSTATUS_ONLINE = 1,
-	VIPSTATUS_PENDING = 2,
-	VIPSTATUS_TRAINING = 3
+	VIPSTATUS_PENDING = 2
 };
 
 enum MarketAction_t {
@@ -111,9 +109,8 @@ enum MarketAction_t {
 };
 
 enum MarketRequest_t {
-	MARKETREQUEST_OWN_HISTORY = 1,
-	MARKETREQUEST_OWN_OFFERS = 2,
-	MARKETREQUEST_ITEM = 3,
+	MARKETREQUEST_OWN_OFFERS = 0xFFFE,
+	MARKETREQUEST_OWN_HISTORY = 0xFFFF,
 };
 
 enum MarketOfferState_t {
@@ -138,7 +135,6 @@ enum CreatureType_t : uint8_t {
 	CREATURETYPE_NPC = 2,
 	CREATURETYPE_SUMMON_OWN = 3,
 	CREATURETYPE_SUMMON_OTHERS = 4,
-	CREATURETYPE_HIDDEN = 5,
 };
 
 enum OperatingSystem_t : uint8_t {
@@ -147,9 +143,6 @@ enum OperatingSystem_t : uint8_t {
 	CLIENTOS_LINUX = 1,
 	CLIENTOS_WINDOWS = 2,
 	CLIENTOS_FLASH = 3,
-	CLIENTOS_QT_LINUX = 4,
-	CLIENTOS_QT_WINDOWS = 5,
-	CLIENTOS_QT_MAC = 6,
 
 	CLIENTOS_OTCLIENT_LINUX = 10,
 	CLIENTOS_OTCLIENT_WINDOWS = 11,
@@ -162,10 +155,6 @@ enum SpellGroup_t : uint8_t {
 	SPELLGROUP_HEALING = 2,
 	SPELLGROUP_SUPPORT = 3,
 	SPELLGROUP_SPECIAL = 4,
-	//SPELLGROUP_CONJURE = 5,
-	SPELLGROUP_CRIPPLING = 6,
-	SPELLGROUP_FOCUS = 7,
-	SPELLGROUP_ULTIMATESTRIKES = 8,
 };
 
 enum SpellType_t : uint8_t {
@@ -190,7 +179,6 @@ enum RaceType_t : uint8_t {
 	RACE_UNDEAD,
 	RACE_FIRE,
 	RACE_ENERGY,
-	RACE_INK,
 };
 
 enum CombatType_t : uint16_t {
@@ -485,10 +473,7 @@ enum SpeechBubble_t
 	SPEECHBUBBLE_NORMAL = 1,
 	SPEECHBUBBLE_TRADE = 2,
 	SPEECHBUBBLE_QUEST = 3,
-	SPEECHBUBBLE_COMPASS = 4,
-	SPEECHBUBBLE_NORMAL2 = 5,
-	SPEECHBUBBLE_NORMAL3 = 6,
-	SPEECHBUBBLE_HIRELING = 7,
+	SPEECHBUBBLE_QUESTTRADER = 4,
 };
 
 enum MapMark_t
@@ -518,16 +503,12 @@ enum MapMark_t
 struct Outfit_t {
 	uint16_t lookType = 0;
 	uint16_t lookTypeEx = 0;
+	uint16_t lookMount = 0;
 	uint8_t lookHead = 0;
 	uint8_t lookBody = 0;
 	uint8_t lookLegs = 0;
 	uint8_t lookFeet = 0;
 	uint8_t lookAddons = 0;
-	uint16_t lookMount = 0;
-	uint8_t lookMountHead = 0;
-	uint8_t lookMountBody = 0;
-	uint8_t lookMountLegs = 0;
-	uint8_t lookMountFeet = 0;
 };
 
 struct LightInfo {
@@ -550,7 +531,7 @@ struct ShopInfo {
 };
 
 struct MarketOffer {
-	uint64_t price;
+	uint32_t price;
 	uint32_t timestamp;
 	uint16_t amount;
 	uint16_t counter;
@@ -568,7 +549,7 @@ struct MarketOfferEx {
 	uint32_t id;
 	uint32_t playerId;
 	uint32_t timestamp;
-	uint64_t price;
+	uint32_t price;
 	uint16_t amount;
 	uint16_t counter;
 	uint16_t itemId;
@@ -578,7 +559,7 @@ struct MarketOfferEx {
 
 struct HistoryMarketOffer {
 	uint32_t timestamp;
-	uint64_t price;
+	uint32_t price;
 	uint16_t itemId;
 	uint16_t amount;
 	MarketOfferState_t state;

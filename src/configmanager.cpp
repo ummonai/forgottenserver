@@ -188,6 +188,22 @@ bool ConfigManager::load()
 			string[IP] = getGlobalString(L, "ip", "127.0.0.1");
 		}
 
+		uint32_t ip = inet_addr(string[IP].c_str());
+		if (ip == INADDR_NONE) {
+			hostent* hostname = gethostbyname(string[IP].c_str());
+			if (hostname) {
+				ip = inet_addr(std::string(inet_ntoa(**(in_addr**)hostname->h_addr_list)).c_str());
+			}
+		}
+
+		if (ip == INADDR_NONE) {
+			std::cout << "[Error - ConfigManager::load] cannot resolve given ip address, make sure you typed correct IP or hostname." << std::endl;
+			lua_close(L);
+			return false;
+		}
+
+		integer[IP_NUM] = ip;
+
 		string[MAP_NAME] = getGlobalString(L, "mapName", "forgotten");
 		string[MAP_AUTHOR] = getGlobalString(L, "mapAuthor", "Unknown");
 		string[HOUSE_RENT_PERIOD] = getGlobalString(L, "houseRentPeriod", "never");
@@ -248,7 +264,6 @@ bool ConfigManager::load()
 	boolean[ONLY_INVITED_CAN_MOVE_HOUSE_ITEMS] = getGlobalBoolean(L, "onlyInvitedCanMoveHouseItems", true);
 	boolean[REMOVE_ON_DESPAWN] = getGlobalBoolean(L, "removeOnDespawn", true);
 	boolean[PLAYER_CONSOLE_LOGS] = getGlobalBoolean(L, "showPlayerLogInConsole", true);
-	boolean[TWO_FACTOR_AUTH] = getGlobalBoolean(L, "enableTwoFactorAuth", true);
 
 	string[DEFAULT_PRIORITY] = getGlobalString(L, "defaultPriority", "high");
 	string[SERVER_NAME] = getGlobalString(L, "serverName", "");
@@ -292,7 +307,7 @@ bool ConfigManager::load()
 	integer[VIP_FREE_LIMIT] = getGlobalNumber(L, "vipFreeLimit", 20);
 	integer[VIP_PREMIUM_LIMIT] = getGlobalNumber(L, "vipPremiumLimit", 100);
 	integer[DEPOT_FREE_LIMIT] = getGlobalNumber(L, "depotFreeLimit", 2000);
-	integer[DEPOT_PREMIUM_LIMIT] = getGlobalNumber(L, "depotPremiumLimit", 15000);
+	integer[DEPOT_PREMIUM_LIMIT] = getGlobalNumber(L, "depotPremiumLimit", 10000);
 
 	expStages = loadXMLStages();
 	if (expStages.empty()) {
