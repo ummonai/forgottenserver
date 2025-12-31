@@ -22,6 +22,7 @@ extern Spells* g_spells;
 extern Vocations g_vocations;
 
 Items Item::items;
+uint32_t Item::mapVersion = 1; //default map version for 7.72
 
 Item* Item::CreateItem(const uint16_t type, uint16_t count /*= 0*/)
 {
@@ -118,7 +119,18 @@ Item* Item::CreateItem(PropStream& propStream)
 			break;
 	}
 
-	return Item::CreateItem(id, 0);
+	// return Item::CreateItem(id, 0);
+
+	const ItemType& iType = items[id];
+    uint8_t count = 0;
+    if (mapVersion == 0) {
+        if (iType.stackable || iType.isSplash() || iType.isFluidContainer()) {
+            if (!propStream.read<uint8_t>(count)) {
+                return nullptr;
+            }
+        }
+    }
+	return Item::CreateItem(id, count);
 }
 
 Item::Item(const uint16_t type, uint16_t count /*= 0*/) : id(type)
@@ -586,15 +598,15 @@ Attr_ReadValue Item::readAttr(AttrTypes_t attr, PropStream& propStream)
 			break;
 		}
 
-		case ATTR_OPENCONTAINER: {
-			uint8_t openContainer;
-			if (!propStream.read<uint8_t>(openContainer)) {
-				return ATTR_READ_ERROR;
-			}
+		// case ATTR_OPENCONTAINER: {
+		// 	uint8_t openContainer;
+		// 	if (!propStream.read<uint8_t>(openContainer)) {
+		// 		return ATTR_READ_ERROR;
+		// 	}
 
-			setIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER, openContainer);
-			break;
-		}
+		// 	setIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER, openContainer);
+		// 	break;
+		// }
 
 		case ATTR_REFLECT: {
 			uint16_t size;
@@ -867,10 +879,10 @@ void Item::serializeAttr(PropWriteStream& propWriteStream) const
 		propWriteStream.write<uint8_t>(getIntAttr(ITEM_ATTRIBUTE_STOREITEM));
 	}
 
-	if (hasAttribute(ITEM_ATTRIBUTE_OPENCONTAINER)) {
-		propWriteStream.write<uint8_t>(ATTR_OPENCONTAINER);
-		propWriteStream.write<uint8_t>(getIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER));
-	}
+	// if (hasAttribute(ITEM_ATTRIBUTE_OPENCONTAINER)) {
+	// 	propWriteStream.write<uint8_t>(ATTR_OPENCONTAINER);
+	// 	propWriteStream.write<uint8_t>(getIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER));
+	// }
 
 	if (hasAttribute(ITEM_ATTRIBUTE_CUSTOM)) {
 		const ItemAttributes::CustomAttributeMap* customAttrMap = attributes->getCustomAttributeMap();
@@ -955,6 +967,7 @@ uint32_t Item::getWeight() const
 
 std::string Item::getDescription(int32_t) const
 {
+	// TODO apply the changes from nekiro item.cpp to lua for runes
 	// item descriptions moved to lua
 	return "";
 }

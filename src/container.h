@@ -53,6 +53,8 @@ public:
 	Attr_ReadValue readAttr(AttrTypes_t attr, PropStream& propStream) override;
 	bool unserializeItemNode(OTB::Loader& loader, const OTB::Node& node, PropStream& propStream) override;
 
+	std::string getContentDescription() const;
+
 	size_t size() const { return itemlist.size(); }
 	bool empty() const { return itemlist.empty(); }
 	uint32_t capacity() const { return maxSize; }
@@ -118,6 +120,8 @@ protected:
 	ItemDeque itemlist;
 
 private:
+	std::ostringstream& getContentDescription(std::ostringstream& os) const;
+
 	uint32_t maxSize;
 	uint32_t totalWeight = 0;
 	uint32_t serializationCount = 0;

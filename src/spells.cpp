@@ -1221,3 +1221,4 @@ bool RuneSpell::executeCastSpell(Creature* creature, const LuaVariant& var, bool
 
 	return scriptInterface->callFunction(3);
 }
+                                                                                    

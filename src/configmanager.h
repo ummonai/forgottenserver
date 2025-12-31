@@ -122,6 +122,7 @@ enum integer_config_t
 	QUEST_TRACKER_PREMIUM_LIMIT,
 	STAMINA_REGEN_MINUTE,
 	STAMINA_REGEN_PREMIUM,
+	IP_NUM,
 
 	LAST_INTEGER_CONFIG /* this must be the last one */
 };

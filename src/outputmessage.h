@@ -21,15 +21,21 @@ public:
 
 	void writeMessageLength() { add_header(info.length); }
 
-	void addCryptoHeader(checksumMode_t mode, uint32_t& sequence)
-	{
-		if (mode == CHECKSUM_ADLER) {
-			add_header(adlerChecksum(&buffer[outputBufferStart], info.length));
-		} else if (mode == CHECKSUM_SEQUENCE) {
-			add_header(sequence++);
-		}
+	// void addCryptoHeader(checksumMode_t mode, uint32_t& sequence)
+	// {
+	// 	if (mode == CHECKSUM_ADLER) {
+	// 		add_header(adlerChecksum(&buffer[outputBufferStart], info.length));
+	// 	} else if (mode == CHECKSUM_SEQUENCE) {
+	// 		add_header(sequence++);
+	// 	}
 
-		writeMessageLength();
+	// 	writeMessageLength();
+	// }
+
+	void addCryptoHeader(bool addChecksum) {
+		if (addChecksum) {
+			add_header(adlerChecksum(&buffer[outputBufferStart], info.length));
+		}
 	}
 
 	void append(const NetworkMessage& msg)

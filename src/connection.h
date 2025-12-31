@@ -6,21 +6,21 @@
 
 #include "networkmessage.h"
 
-enum ConnectionState_t
-{
-	CONNECTION_STATE_DISCONNECTED,
-	CONNECTION_STATE_REQUEST_CHARLIST,
-	CONNECTION_STATE_GAMEWORLD_AUTH,
-	CONNECTION_STATE_GAME,
-	CONNECTION_STATE_PENDING
-};
+// enum ConnectionState_t
+// {
+// 	CONNECTION_STATE_DISCONNECTED,
+// 	CONNECTION_STATE_REQUEST_CHARLIST,
+// 	CONNECTION_STATE_GAMEWORLD_AUTH,
+// 	CONNECTION_STATE_GAME,
+// 	CONNECTION_STATE_PENDING
+// };
 
-enum checksumMode_t
-{
-	CHECKSUM_DISABLED,
-	CHECKSUM_ADLER,
-	CHECKSUM_SEQUENCE
-};
+// enum checksumMode_t
+// {
+// 	CHECKSUM_DISABLED,
+// 	CHECKSUM_ADLER,
+// 	CHECKSUM_SEQUENCE
+// };
 
 static constexpr int32_t CONNECTION_WRITE_TIMEOUT = 30;
 static constexpr int32_t CONNECTION_READ_TIMEOUT = 30;
@@ -116,7 +116,8 @@ private:
 	time_t timeConnected;
 	uint32_t packetsSent = 0;
 
-	ConnectionState_t connectionState = CONNECTION_STATE_PENDING;
+	// ConnectionState_t connectionState = CONNECTION_STATE_PENDING;
+	bool closed = false;
 	bool receivedFirst = false;
 	bool receivedName = false;
 	bool receivedLastChar = false;

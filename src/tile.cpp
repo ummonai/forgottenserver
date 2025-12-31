@@ -58,6 +58,7 @@ bool Tile::hasProperty(const Item* exclude, ITEMPROPERTY prop) const
 	return false;
 }
 
+/*
 bool Tile::hasHeight(uint32_t n) const
 {
 	uint32_t height = 0;
@@ -85,6 +86,7 @@ bool Tile::hasHeight(uint32_t n) const
 	}
 	return false;
 }
+*/
 
 size_t Tile::getCreatureCount() const
 {
@@ -349,6 +351,7 @@ Thing* Tile::getTopVisibleThing(const Creature* creature)
 
 void Tile::onAddTileItem(Item* item)
 {
+	/*
 	if (item->hasProperty(CONST_PROP_MOVEABLE) || item->getContainer()) {
 		auto it = g_game.browseFields.find(this);
 		if (it != g_game.browseFields.end()) {
@@ -356,6 +359,7 @@ void Tile::onAddTileItem(Item* item)
 			item->setParent(it->second);
 		}
 	}
+	*/
 
 	setTileFlags(item);
 
@@ -582,12 +586,20 @@ ReturnValue Tile::queryAdd(int32_t, const Thing& thing, uint32_t, uint32_t flags
 				}
 			}
 
+			const Tile* playerTile = player->getTile();
+			if (playerTile) {
+				int32_t playerTileHeight = playerTile->getHeight();
+				if (player->getPosition().z == getPosition().z && playerTileHeight < 3 && static_cast<int32_t>(getHeight()) - playerTileHeight >= 2) {
+					return RETURNVALUE_NOTPOSSIBLE;
+				}
+			}
+
 			if (!player->getParent() && hasFlag(TILESTATE_NOLOGOUT)) {
 				// player is trying to login to a "no logout" tile
 				return RETURNVALUE_NOTPOSSIBLE;
 			}
 
-			const Tile* playerTile = player->getTile();
+			//const Tile* playerTile = player->getTile();
 			if (playerTile && player->isPzLocked()) {
 				if (!playerTile->hasFlag(TILESTATE_PVPZONE)) {
 					// player is trying to enter a pvp zone while being pz-locked
@@ -852,7 +864,8 @@ void Tile::addThing(int32_t, Thing* thing)
 
 		creature->setParent(this);
 		CreatureVector* creatures = makeCreatures();
-		creatures->insert(creatures->begin(), creature);
+		//creatures->insert(creatures->begin(), creature);
+		creatures->insert(creatures->end(), creature);
 	} else {
 		Item* item = thing->getItem();
 		if (!item) {
@@ -1536,6 +1549,10 @@ void Tile::setTileFlags(const Item* item)
 	if (item->hasProperty(CONST_PROP_SUPPORTHANGABLE)) {
 		setFlag(TILESTATE_SUPPORTS_HANGABLE);
 	}
+
+	if (item->hasProperty(CONST_PROP_HASHEIGHT)) {
+		height++;
+	}
 }
 
 void Tile::resetTileFlags(const Item* item)
@@ -1597,6 +1614,10 @@ void Tile::resetTileFlags(const Item* item)
 
 	if (item->hasProperty(CONST_PROP_SUPPORTHANGABLE)) {
 		resetFlag(TILESTATE_SUPPORTS_HANGABLE);
+	}
+
+	if (item->hasProperty(CONST_PROP_HASHEIGHT) && height > 0) {
+		height--;
 	}
 }
 

@@ -389,15 +389,15 @@ public:
 	void playerBrowseMarket(uint32_t playerId, uint16_t spriteId);
 	void playerBrowseMarketOwnOffers(uint32_t playerId);
 	void playerBrowseMarketOwnHistory(uint32_t playerId);
-	void playerCreateMarketOffer(uint32_t playerId, uint8_t type, uint16_t spriteId, uint16_t amount, uint64_t price,
-	                             bool anonymous);
+	// void playerCreateMarketOffer(uint32_t playerId, uint8_t type, uint16_t spriteId, uint16_t amount, uint64_t price,
+	//                              bool anonymous);
 	void playerCancelMarketOffer(uint32_t playerId, uint32_t timestamp, uint16_t counter);
 	void playerAcceptMarketOffer(uint32_t playerId, uint32_t timestamp, uint16_t counter, uint16_t amount);
 
 	void parsePlayerExtendedOpcode(uint32_t playerId, uint8_t opcode, const std::string& buffer);
 	void parsePlayerNetworkMessage(uint32_t playerId, uint8_t recvByte, NetworkMessage* msg);
 
-	std::vector<Item*> getMarketItemList(uint16_t wareId, uint16_t sufficientCount, const Player& player);
+	// std::vector<Item*> getMarketItemList(uint16_t wareId, uint16_t sufficientCount, const Player& player);
 
 	void cleanup();
 	void shutdown();
@@ -415,6 +415,8 @@ public:
 	void changeLight(const Creature* creature);
 	void updateCreatureSkull(const Creature* creature);
 	void updatePlayerShield(Player* player);
+	void updatePlayerHelpers(const Player& player);
+	void updateCreatureType(Creature* creature);
 	void updateCreatureWalkthrough(const Creature* creature);
 	void updateKnownCreature(const Creature* creature);
 
@@ -440,6 +442,8 @@ public:
 	// animation help functions
 	void addCreatureHealth(const Creature* target);
 	static void addCreatureHealth(const SpectatorVec& spectators, const Creature* target);
+	static void addColoredText(const SpectatorVec& spectators, const ColoredText& coloredText);
+	void addColoredText(const ColoredText& coloredText);
 	void addMagicEffect(const Position& pos, uint8_t effect);
 	static void addMagicEffect(const SpectatorVec& spectators, const Position& pos, uint8_t effect);
 	void addDistanceEffect(const Position& fromPos, const Position& toPos, uint8_t effect);
@@ -448,7 +452,7 @@ public:
 
 	void startDecay(Item* item);
 
-	void sendOfflineTrainingDialog(Player* player);
+	// void sendOfflineTrainingDialog(Player* player);
 
 	const std::unordered_map<uint32_t, Player*>& getPlayers() const { return players; }
 	const std::map<uint32_t, Npc*>& getNpcs() const { return npcs; }

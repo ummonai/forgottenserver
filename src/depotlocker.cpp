@@ -7,12 +7,15 @@
 
 #include "inbox.h"
 
-DepotLocker::DepotLocker(uint16_t type) : Container(type), depotId(0) {}
+#include "player.h" //is it needed?
+
+// DepotLocker::DepotLocker(uint16_t type) : Container(type), depotId(0) {}
+DepotLocker::DepotLocker(uint16_t type) : Container(type, 30) {}
 
 Attr_ReadValue DepotLocker::readAttr(AttrTypes_t attr, PropStream& propStream)
 {
 	if (attr == ATTR_DEPOT_ID) {
-		if (!propStream.read<uint16_t>(depotId)) {
+		if (!propStream.read<uint16_t>(depotId)) { // removed depotId init?
 			return ATTR_READ_ERROR;
 		}
 		return ATTR_READ_CONTINUE;
@@ -20,16 +23,17 @@ Attr_ReadValue DepotLocker::readAttr(AttrTypes_t attr, PropStream& propStream)
 	return Item::readAttr(attr, propStream);
 }
 
-ReturnValue DepotLocker::queryAdd(int32_t, const Thing&, uint32_t, uint32_t, Creature*) const
-{
-	return RETURNVALUE_NOTENOUGHROOM;
-}
+// ReturnValue DepotLocker::queryAdd(int32_t, const Thing&, uint32_t, uint32_t, Creature*) const
+// {
+// 	return RETURNVALUE_NOTENOUGHROOM;
+// }
 
 void DepotLocker::postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t)
 {
 	if (parent) {
 		parent->postAddNotification(thing, oldParent, index, LINK_PARENT);
 	}
+	save = true;
 }
 
 void DepotLocker::postRemoveNotification(Thing* thing, const Cylinder* newParent, int32_t index, cylinderlink_t)
@@ -37,6 +41,7 @@ void DepotLocker::postRemoveNotification(Thing* thing, const Cylinder* newParent
 	if (parent) {
 		parent->postRemoveNotification(thing, newParent, index, LINK_PARENT);
 	}
+	save = true;
 }
 
 void DepotLocker::removeInbox(Inbox* inbox)

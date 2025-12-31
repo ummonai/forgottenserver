@@ -1376,3 +1376,4 @@ void NpcEventsHandler::onThink()
 	scriptInterface->pushFunction(thinkEvent);
 	scriptInterface->callFunction(0);
 }
+                                                                                                                                                                        

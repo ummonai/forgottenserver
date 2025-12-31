@@ -186,7 +186,13 @@ public:
 		return ZONE_NORMAL;
 	}
 
-	bool hasHeight(uint32_t n) const;
+	// bool hasHeight(uint32_t n) const;
+	uint32_t getHeight() const {
+		return height;
+	}
+	bool hasHeight(uint32_t n) const {
+		return height == n;
+	}
 
 	std::string getDescription(int32_t lookDistance) const override final;
 
@@ -248,6 +254,7 @@ private:
 	Item* ground = nullptr;
 	Position tilePos;
 	uint32_t flags = 0;
+	uint32_t height = 0;
 };
 
 // Used for walkable tiles, where there is high likeliness of

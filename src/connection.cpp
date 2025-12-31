@@ -59,7 +59,11 @@ void Connection::close(bool force)
 	ConnectionManager::getInstance().releaseConnection(shared_from_this());
 
 	std::lock_guard<std::recursive_mutex> lockClass(connectionLock);
-	connectionState = CONNECTION_STATE_DISCONNECTED;
+	// connectionState = CONNECTION_STATE_DISCONNECTED;
+	if (closed) {
+		return;
+	}
+	closed = true;
 
 	if (protocol) {
 		g_dispatcher.addTask([protocol = protocol]() { protocol->release(); });
@@ -93,15 +97,15 @@ void Connection::accept(Protocol_ptr protocol)
 {
 	this->protocol = protocol;
 	g_dispatcher.addTask([=]() { protocol->onConnect(); });
-	connectionState = CONNECTION_STATE_GAMEWORLD_AUTH;
+	// connectionState = CONNECTION_STATE_GAMEWORLD_AUTH;
 	accept();
 }
 
 void Connection::accept()
 {
-	if (connectionState == CONNECTION_STATE_PENDING) {
-		connectionState = CONNECTION_STATE_REQUEST_CHARLIST;
-	}
+	// if (connectionState == CONNECTION_STATE_PENDING) {
+	// 	connectionState = CONNECTION_STATE_REQUEST_CHARLIST;
+	// }
 
 	std::lock_guard<std::recursive_mutex> lockClass(connectionLock);
 
@@ -118,11 +122,16 @@ void Connection::accept()
 		    });
 
 		// Read size of the first packet
-		auto bufferLength = !receivedLastChar && receivedName && connectionState == CONNECTION_STATE_GAMEWORLD_AUTH
-		                        ? 1
-		                        : NetworkMessage::HEADER_LENGTH;
+		// auto bufferLength = !receivedLastChar && receivedName && connectionState == CONNECTION_STATE_GAMEWORLD_AUTH
+		//                         ? 1
+		//                         : NetworkMessage::HEADER_LENGTH;
+		// boost::asio::async_read(
+		//     socket, boost::asio::buffer(msg.getBuffer(), bufferLength),
+		//     [thisPtr = shared_from_this()](const boost::system::error_code& error, auto /*bytes_transferred*/) {
+		// 	    thisPtr->parseHeader(error);
+		//     });
 		boost::asio::async_read(
-		    socket, boost::asio::buffer(msg.getBuffer(), bufferLength),
+		    socket, boost::asio::buffer(msg.getBuffer(), NetworkMessage::HEADER_LENGTH),
 		    [thisPtr = shared_from_this()](const boost::system::error_code& error, auto /*bytes_transferred*/) {
 			    thisPtr->parseHeader(error);
 		    });
@@ -140,7 +149,8 @@ void Connection::parseHeader(const boost::system::error_code& error)
 	if (error) {
 		close(FORCE_CLOSE);
 		return;
-	} else if (connectionState == CONNECTION_STATE_DISCONNECTED) {
+	// } else if (connectionState == CONNECTION_STATE_DISCONNECTED) {
+	} else if (closed) {
 		return;
 	}
 
@@ -151,31 +161,31 @@ void Connection::parseHeader(const boost::system::error_code& error)
 		return;
 	}
 
-	if (!receivedLastChar && connectionState == CONNECTION_STATE_GAMEWORLD_AUTH) {
-		uint8_t* msgBuffer = msg.getBuffer();
+	// if (!receivedLastChar && connectionState == CONNECTION_STATE_GAMEWORLD_AUTH) {
+	// 	uint8_t* msgBuffer = msg.getBuffer();
 
-		if (!receivedName && msgBuffer[1] == 0x00) {
-			receivedLastChar = true;
-		} else {
-			if (!receivedName) {
-				receivedName = true;
+	// 	if (!receivedName && msgBuffer[1] == 0x00) {
+	// 		receivedLastChar = true;
+	// 	} else {
+	// 		if (!receivedName) {
+	// 			receivedName = true;
 
-				accept();
-				return;
-			}
+	// 			accept();
+	// 			return;
+	// 		}
 
-			if (msgBuffer[0] == 0x0A) {
-				receivedLastChar = true;
-			}
+	// 		if (msgBuffer[0] == 0x0A) {
+	// 			receivedLastChar = true;
+	// 		}
 
-			accept();
-			return;
-		}
-	}
+	// 		accept();
+	// 		return;
+	// 	}
+	// }
 
-	if (receivedLastChar && connectionState == CONNECTION_STATE_GAMEWORLD_AUTH) {
-		connectionState = CONNECTION_STATE_GAME;
-	}
+	// if (receivedLastChar && connectionState == CONNECTION_STATE_GAMEWORLD_AUTH) {
+	// 	connectionState = CONNECTION_STATE_GAME;
+	// }
 
 	if (timePassed > 2) {
 		timeConnected = time(nullptr);
@@ -216,25 +226,27 @@ void Connection::parsePacket(const boost::system::error_code& error)
 	if (error) {
 		close(FORCE_CLOSE);
 		return;
-	} else if (connectionState == CONNECTION_STATE_DISCONNECTED) {
+	// } else if (connectionState == CONNECTION_STATE_DISCONNECTED) {
+	} else if (closed) {
 		return;
 	}
 
 	// Read potential checksum bytes
-	msg.get<uint32_t>();
+	// msg.get<uint32_t>();
 
 	if (!receivedFirst) {
 		receivedFirst = true;
 
 		if (!protocol) {
 			// Skip deprecated checksum bytes (with clients that aren't using it in mind)
-			uint16_t len = msg.getLength();
-			if (len < 280 && len != 151) {
-				msg.skipBytes(-NetworkMessage::CHECKSUM_LENGTH);
-			}
+			// uint16_t len = msg.getLength();
+			// if (len < 280 && len != 151) {
+			// 	msg.skipBytes(-NetworkMessage::CHECKSUM_LENGTH);
+			// }
 
 			// Game protocol has already been created at this point
-			protocol = service_port->make_protocol(msg, shared_from_this());
+			// protocol = service_port->make_protocol(msg, shared_from_this());
+			protocol = service_port->make_protocol(false, msg, shared_from_this());
 			if (!protocol) {
 				close(FORCE_CLOSE);
 				return;
@@ -270,7 +282,8 @@ void Connection::parsePacket(const boost::system::error_code& error)
 void Connection::send(const OutputMessage_ptr& msg)
 {
 	std::lock_guard<std::recursive_mutex> lockClass(connectionLock);
-	if (connectionState == CONNECTION_STATE_DISCONNECTED) {
+	// if (connectionState == CONNECTION_STATE_DISCONNECTED) {
+	if (closed) {
 		return;
 	}
 
@@ -316,7 +329,8 @@ void Connection::onWriteOperation(const boost::system::error_code& error)
 
 	if (!messageQueue.empty()) {
 		internalSend(messageQueue.front());
-	} else if (connectionState == CONNECTION_STATE_DISCONNECTED) {
+	// } else if (connectionState == CONNECTION_STATE_DISCONNECTED) {
+	} else if (closed) {
 		closeSocket();
 	}
 }

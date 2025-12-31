@@ -115,7 +115,8 @@ bool IOLoginData::loadPlayerById(Player* player, uint32_t id)
 	return loadPlayer(
 	    player,
 	    db.storeQuery(fmt::format(
-	        "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `lookmounthead`, `lookmountbody`, `lookmountlegs`, `lookmountfeet`, `currentmount`, `randomizemount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `stamina`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries`, `direction` FROM `players` WHERE `id` = {:d}",
+	        // "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `lookmounthead`, `lookmountbody`, `lookmountlegs`, `lookmountfeet`, `currentmount`, `randomizemount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `stamina`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries`, `direction` FROM `players` WHERE `id` = {:d}",
+			 "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `lookmounthead`, `lookmountbody`, `lookmountlegs`, `lookmountfeet`, `currentmount`, `randomizemount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `stamina`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries`, `direction` FROM `players` WHERE `id` = {:d}",
 	        id)));
 }
 
@@ -124,6 +125,8 @@ bool IOLoginData::loadPlayerByName(Player* player, const std::string& name)
 	Database& db = Database::getInstance();
 	return loadPlayer(
 	    player,
+		// in nekiro `lookmount`, `lookmounthead`, `lookmountbody`, `lookmountlegs`, `lookmountfeet` are removed, leaving those
+		// in 1.6 there are 2 extra:  `currentmount`,  `randomizemount`,  leaving those too
 	    db.storeQuery(fmt::format(
 	        "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `lookmount`, `lookmounthead`, `lookmountbody`, `lookmountlegs`, `lookmountfeet`, `currentmount`, `randomizemount`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `stamina`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries`, `direction` FROM `players` WHERE `name` = {:s}",
 	        db.escapeString(name))));
@@ -245,15 +248,15 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	player->defaultOutfit.lookLegs = result->getNumber<uint16_t>("looklegs");
 	player->defaultOutfit.lookFeet = result->getNumber<uint16_t>("lookfeet");
 	player->defaultOutfit.lookAddons = result->getNumber<uint16_t>("lookaddons");
-	player->defaultOutfit.lookMount = result->getNumber<uint16_t>("lookmount");
-	player->defaultOutfit.lookMountHead = result->getNumber<uint16_t>("lookmounthead");
-	player->defaultOutfit.lookMountBody = result->getNumber<uint16_t>("lookmountbody");
-	player->defaultOutfit.lookMountLegs = result->getNumber<uint16_t>("lookmountlegs");
-	player->defaultOutfit.lookMountFeet = result->getNumber<uint16_t>("lookmountfeet");
+	// player->defaultOutfit.lookMount = result->getNumber<uint16_t>("lookmount");
+	// player->defaultOutfit.lookMountHead = result->getNumber<uint16_t>("lookmounthead");
+	// player->defaultOutfit.lookMountBody = result->getNumber<uint16_t>("lookmountbody");
+	// player->defaultOutfit.lookMountLegs = result->getNumber<uint16_t>("lookmountlegs");
+	// player->defaultOutfit.lookMountFeet = result->getNumber<uint16_t>("lookmountfeet");
 	player->currentOutfit = player->defaultOutfit;
-	player->currentMount = result->getNumber<uint16_t>("currentmount");
+	// player->currentMount = result->getNumber<uint16_t>("currentmount");
 	player->direction = static_cast<Direction>(result->getNumber<uint16_t>("direction"));
-	player->randomizeMount = result->getNumber<uint8_t>("randomizemount") != 0;
+	// player->randomizeMount = result->getNumber<uint8_t>("randomizemount") != 0;
 
 	if (g_game.getWorldType() != WORLD_TYPE_PVP_ENFORCED) {
 		const time_t skullSeconds = result->getNumber<time_t>("skulltime") - time(nullptr);
@@ -368,7 +371,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 
 	// load inventory items
 	ItemMap itemMap;
-	std::map<uint8_t, Container*> openContainersList;
+	// std::map<uint8_t, Container*> openContainersList;
 
 	if ((result = db.storeQuery(fmt::format(
 	         "SELECT `pid`, `sid`, `itemtype`, `count`, `attributes` FROM `player_items` WHERE `player_id` = {:d} ORDER BY `sid` DESC",
@@ -380,13 +383,13 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 			Item* item = pair.first;
 			int32_t pid = pair.second;
 
-			Container* itemContainer = item->getContainer();
-			if (itemContainer) {
-				uint8_t cid = item->getIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER);
-				if (cid > 0) {
-					openContainersList.emplace(cid, itemContainer);
-				}
-			}
+			// Container* itemContainer = item->getContainer();
+			// if (itemContainer) {
+			// 	uint8_t cid = item->getIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER);
+			// 	if (cid > 0) {
+			// 		openContainersList.emplace(cid, itemContainer);
+			// 	}
+			// }
 
 			if (pid >= CONST_SLOT_FIRST && pid <= CONST_SLOT_LAST) {
 				player->internalAddThing(pid, item);
@@ -404,10 +407,10 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 		}
 	}
 
-	for (auto& it : openContainersList) {
-		player->addContainer(it.first - 1, it.second);
-		player->onSendContainer(it.second);
-	}
+	// for (auto& it : openContainersList) {
+	// 	player->addContainer(it.first - 1, it.second);
+	// 	player->onSendContainer(it.second);
+	// }
 
 	// load depot items
 	itemMap.clear();
@@ -442,6 +445,8 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	}
 
 	// load inbox items
+	
+	/*
 	itemMap.clear();
 
 	if ((result = db.storeQuery(fmt::format(
@@ -500,6 +505,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 			}
 		}
 	}
+	*/
 
 	// load storage map
 	if ((result = db.storeQuery(
@@ -547,7 +553,7 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 	containers.reserve(32);
 
 	int32_t runningId = 100;
-	const auto& openContainers = player->getOpenContainers();
+	// const auto& openContainers = player->getOpenContainers();
 
 	Database& db = Database::getInstance();
 	for (const auto& it : itemList) {
@@ -555,6 +561,7 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 		Item* item = it.second;
 		++runningId;
 
+		/*
 		if (Container* container = item->getContainer()) {
 			if (container->getIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER)) {
 				container->setIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER, 0);
@@ -574,6 +581,7 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 
 			containers.emplace_back(container, runningId);
 		}
+		*/
 
 		propWriteStream.clear();
 		item->serializeAttr(propWriteStream);
@@ -583,6 +591,11 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 		                                     db.escapeString(propWriteStream.getStream())))) {
 			return false;
 		}
+
+		if (Container* container = item->getContainer()) {
+			containers.emplace_back(container, runningId);
+		}
+
 	}
 
 	for (size_t i = 0; i < containers.size(); i++) {
@@ -596,7 +609,7 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 			Container* subContainer = item->getContainer();
 			if (subContainer) {
 				containers.emplace_back(subContainer, runningId);
-
+				/*
 				if (subContainer->getIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER)) {
 					subContainer->setIntAttr(ITEM_ATTRIBUTE_OPENCONTAINER, 0);
 				}
@@ -612,6 +625,7 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 						}
 					}
 				}
+				*/
 			}
 
 			propWriteStream.clear();
@@ -671,13 +685,13 @@ bool IOLoginData::savePlayer(Player* player)
 	query << "`looklegs` = " << static_cast<uint32_t>(player->defaultOutfit.lookLegs) << ',';
 	query << "`looktype` = " << player->defaultOutfit.lookType << ',';
 	query << "`lookaddons` = " << static_cast<uint32_t>(player->defaultOutfit.lookAddons) << ',';
-	query << "`lookmount` = " << player->defaultOutfit.lookMount << ',';
-	query << "`lookmounthead` = " << static_cast<uint32_t>(player->defaultOutfit.lookMountHead) << ',';
-	query << "`lookmountbody` = " << static_cast<uint32_t>(player->defaultOutfit.lookMountBody) << ',';
-	query << "`lookmountlegs` = " << static_cast<uint32_t>(player->defaultOutfit.lookMountLegs) << ',';
-	query << "`lookmountfeet` = " << static_cast<uint32_t>(player->defaultOutfit.lookMountFeet) << ',';
-	query << "`currentmount` = " << static_cast<uint16_t>(player->currentMount) << ',';
-	query << "`randomizemount` = " << player->randomizeMount << ",";
+	// query << "`lookmount` = " << player->defaultOutfit.lookMount << ',';
+	// query << "`lookmounthead` = " << static_cast<uint32_t>(player->defaultOutfit.lookMountHead) << ',';
+	// query << "`lookmountbody` = " << static_cast<uint32_t>(player->defaultOutfit.lookMountBody) << ',';
+	// query << "`lookmountlegs` = " << static_cast<uint32_t>(player->defaultOutfit.lookMountLegs) << ',';
+	// query << "`lookmountfeet` = " << static_cast<uint32_t>(player->defaultOutfit.lookMountFeet) << ',';
+	// query << "`currentmount` = " << static_cast<uint16_t>(player->currentMount) << ',';
+	// query << "`randomizemount` = " << player->randomizeMount << ",";
 	query << "`maglevel` = " << player->magLevel << ',';
 	query << "`mana` = " << player->mana << ',';
 	query << "`manamax` = " << player->manaMax << ',';
@@ -794,25 +808,67 @@ bool IOLoginData::savePlayer(Player* player)
 	}
 
 	// save depot items
-	if (!db.executeQuery(fmt::format("DELETE FROM `player_depotitems` WHERE `player_id` = {:d}", player->getGUID()))) {
-		return false;
-	}
+	// if (!db.executeQuery(fmt::format("DELETE FROM `player_depotitems` WHERE `player_id` = {:d}", player->getGUID()))) {
+	// 	return false;
+	// }
+	bool needsSave = false;
+	//save depot locker item
+	// for (const auto& it : player->depotLockerMap) {
+	// 	if (it.second->needsSave()) {
+	// 		needsSave = true;
+	// 		break;
+	// 	}
+	// }
 
-	DBInsert depotQuery(
-	    "INSERT INTO `player_depotitems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
-	itemList.clear();
-
-	for (const auto& it : player->depotChests) {
-		for (Item* item : it.second->getItemList()) {
-			itemList.emplace_back(it.first, item);
+	if (needsSave) {
+		if (!db.executeQuery(fmt::format("DELETE FROM `player_depotlockeritems` WHERE `player_id` = {:d}", player->getGUID()))) {
+			return false;
 		}
 	}
 
-	if (!saveItems(player, itemList, depotQuery, propWriteStream)) {
+	// DBInsert depotQuery(
+	//     "INSERT INTO `player_depotitems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+
+	DBInsert lockerQuery(
+	    "INSERT INTO `player_depotlockeritems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+
+	itemList.clear();
+
+	// for (const auto& it : player->depotChests) {
+
+	// for (const auto& it : player->depotLockerMap) {
+	// 	for (Item* item : it.second->getItemList()) {
+	// 		// itemList.emplace_back(it.first, item);
+	// 		if (item->getID() != ITEM_DEPOT) {
+	// 			itemList.emplace_back(it.first, item);
+	// 		}
+	// 	}
+	// }
+
+	// if (!saveItems(player, itemList, depotQuery, propWriteStream)) {
+	if (!saveItems(player, itemList, lockerQuery, propWriteStream)) {
 		return false;
 	}
 
+	//save depot items
+	if (needsSave) {
+		if (!db.executeQuery(fmt::format("DELETE FROM `player_depotitems` WHERE `player_id` = {:d}", player->getGUID()))) {
+			return false;
+		}
+		DBInsert depotQuery("INSERT INTO `player_depotitems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+		itemList.clear();
+		for (const auto& it : player->depotChests) {
+			for (Item* item : it.second->getItemList()) {
+				itemList.emplace_back(it.first, item);
+			}
+		}
+		if (!saveItems(player, itemList, depotQuery, propWriteStream)) {
+			return false;
+		}
+	}
+
 	// save inbox items
+	/*
 	if (!db.executeQuery(fmt::format("DELETE FROM `player_inboxitems` WHERE `player_id` = {:d}", player->getGUID()))) {
 		return false;
 	}
@@ -846,6 +902,7 @@ bool IOLoginData::savePlayer(Player* player)
 	if (!saveItems(player, itemList, storeInboxQuery, propWriteStream)) {
 		return false;
 	}
+	*/
 
 	if (!db.executeQuery(fmt::format("DELETE FROM `player_storage` WHERE `player_id` = {:d}", player->getGUID()))) {
 		return false;

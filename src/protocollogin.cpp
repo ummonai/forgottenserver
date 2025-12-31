@@ -94,31 +94,31 @@ void ProtocolLogin::getCharacterList(const std::string& accountName, const std::
 		} while (result->next());
 	}
 
-	uint32_t ticks = duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now().time_since_epoch()).count() /
-	                 AUTHENTICATOR_PERIOD;
+	// uint32_t ticks = duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now().time_since_epoch()).count() /
+	//                  AUTHENTICATOR_PERIOD;
 
 	auto output = OutputMessagePool::getOutputMessage();
-	if (!account.key.empty()) {
-		if (token.empty() ||
-		    !(token == generateToken(account.key, ticks) || token == generateToken(account.key, ticks - 1) ||
-		      token == generateToken(account.key, ticks + 1))) {
-			output->addByte(0x0D);
-			output->addByte(0);
-			send(output);
-			disconnect();
-			return;
-		}
-		output->addByte(0x0C);
-		output->addByte(0);
-	}
+	// if (!account.key.empty()) {
+	// 	if (token.empty() ||
+	// 	    !(token == generateToken(account.key, ticks) || token == generateToken(account.key, ticks - 1) ||
+	// 	      token == generateToken(account.key, ticks + 1))) {
+	// 		output->addByte(0x0D);
+	// 		output->addByte(0);
+	// 		send(output);
+	// 		disconnect();
+	// 		return;
+	// 	}
+	// 	output->addByte(0x0C);
+	// 	output->addByte(0);
+	// }
 
 	// Generate and add session key
 	static std::independent_bits_engine<std::default_random_engine, CHAR_BIT, unsigned short> rbe;
 	std::string sessionKey(16, '\x00');
 	std::generate(sessionKey.begin(), sessionKey.end(), std::ref(rbe));
 
-	output->addByte(0x28);
-	output->addString(tfs::base64::encode({sessionKey.data(), sessionKey.size()}));
+	// output->addByte(0x28);
+	// output->addString(tfs::base64::encode({sessionKey.data(), sessionKey.size()}));
 
 	if (!db.executeQuery(fmt::format(
 	        "INSERT INTO `sessions` (`token`, `account_id`, `ip`) VALUES ({:s}, {:d}, INET6_ATON({:s}))",
@@ -131,7 +131,16 @@ void ProtocolLogin::getCharacterList(const std::string& accountName, const std::
 	output->addByte(0x64);
 
 	uint8_t size = std::min<size_t>(std::numeric_limits<uint8_t>::max(), account.characters.size());
+	output->addByte(size);
+	for (uint8_t i = 0; i < size; i++) {
+		output->addString(account.characters[i]);
+		output->addString(getString(ConfigManager::SERVER_NAME));
+		output->add<uint32_t>(getNumber(ConfigManager::IP_NUM));
+		output->add<uint16_t>(getNumber(ConfigManager::GAME_PORT));
+	}
 
+	/*
+	uint8_t size = std::min<size_t>(std::numeric_limits<uint8_t>::max(), account.characters.size());
 	if (getBoolean(ConfigManager::ONLINE_OFFLINE_CHARLIST)) {
 		output->addByte(2); // number of worlds
 
@@ -161,15 +170,18 @@ void ProtocolLogin::getCharacterList(const std::string& accountName, const std::
 		}
 		output->addString(character);
 	}
+	*/
 
 	// Add premium days
-	output->addByte(0);
+	// output->addByte(0);
 	if (getBoolean(ConfigManager::FREE_PREMIUM)) {
-		output->addByte(1);
-		output->add<uint32_t>(0);
+		// output->addByte(1);
+		// output->add<uint32_t>(0);
+		output->add<uint16_t>(0xFFFF); //client displays free premium
 	} else {
-		output->addByte(account.premiumEndsAt > time(nullptr) ? 1 : 0);
-		output->add<uint32_t>(account.premiumEndsAt);
+		// output->addByte(account.premiumEndsAt > time(nullptr) ? 1 : 0);
+		// output->add<uint32_t>(account.premiumEndsAt);
+		output->add<uint16_t>(std::max<time_t>(0, account.premiumEndsAt - time(nullptr)) / 86400);
 	}
 
 	send(output);
@@ -188,14 +200,14 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 	msg.skipBytes(2); // client OS
 
 	uint16_t version = msg.get<uint16_t>();
-	if (version <= 822) {
-		setChecksumMode(CHECKSUM_DISABLED);
-	}
+	// if (version <= 822) {
+	// 	setChecksumMode(CHECKSUM_DISABLED);
+	// }
 
-	if (version <= 760) {
-		disconnectClient(fmt::format("Only clients with protocol {:s} allowed!", CLIENT_VERSION_STR), version);
-		return;
-	}
+	// if (version <= 760) {
+	// 	disconnectClient(fmt::format("Only clients with protocol {:s} allowed!", CLIENT_VERSION_STR), version);
+	// 	return;
+	// }
 
 	if (version >= 971) {
 		msg.skipBytes(17);
@@ -208,6 +220,11 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 	 * 12 bytes: dat, spr, pic signatures (4 bytes each)
 	 * 1 byte: 0
 	 */
+
+	if (version < 760) {
+		disconnectClient(fmt::format("Only clients with protocol {:s} allowed!", CLIENT_VERSION_STR), version);
+		return;
+	}
 
 	if (!Protocol::RSA_decrypt(msg)) {
 		disconnect();
@@ -249,9 +266,18 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 		return;
 	}
 
-	auto accountName = msg.getString();
+	// auto accountName = msg.getString();
+	uint32_t accountNumber = msg.get<uint32_t>();
+	if (accountNumber == 0) {
+		disconnectClient("Invalid account number.", version);
+		return;
+	}
+
+	const std::string& accountName = std::to_string(accountNumber);
+
 	if (accountName.empty()) {
-		disconnectClient("Invalid account name.", version);
+		// disconnectClient("Invalid account name.", version);
+		disconnectClient("Invalid account number.", version);
 		return;
 	}
 
@@ -262,6 +288,7 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 	}
 
 	// read authenticator token and stay logged in flag from last bytes
+	/*
 	msg.skipBytes(msg.getRemainingBufferLength() - Protocol::RSA_BUFFER_LENGTH);
 	if (!Protocol::RSA_decrypt(msg)) {
 		disconnectClient("Invalid authentication token.", version);
@@ -269,10 +296,17 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 	}
 
 	auto authToken = msg.getString();
+	*/
+
+	// g_dispatcher.addTask([=, thisPtr = std::static_pointer_cast<ProtocolLogin>(shared_from_this()),
+	//                       accountName = std::string{accountName}, password = std::string{password},
+	//                       authToken = std::string{authToken}]() {
+	// 	thisPtr->getCharacterList(accountName, password, authToken, version);
+	// });
 
 	g_dispatcher.addTask([=, thisPtr = std::static_pointer_cast<ProtocolLogin>(shared_from_this()),
 	                      accountName = std::string{accountName}, password = std::string{password},
-	                      authToken = std::string{authToken}]() {
+	                      authToken = ""]() {
 		thisPtr->getCharacterList(accountName, password, authToken, version);
 	});
 }

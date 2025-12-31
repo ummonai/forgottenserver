@@ -27,8 +27,12 @@ public:
 	void setDepotId(uint16_t depotId) { this->depotId = depotId; }
 
 	// cylinder implementations
-	ReturnValue queryAdd(int32_t index, const Thing& thing, uint32_t count, uint32_t flags,
-	                     Creature* actor = nullptr) const override;
+	// ReturnValue queryAdd(int32_t index, const Thing& thing, uint32_t count, uint32_t flags,
+	//                      Creature* actor = nullptr) const override;
+
+	bool needsSave() {
+		return save;
+	}
 
 	void postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index,
 	                         cylinderlink_t link = LINK_OWNER) override;
@@ -38,7 +42,9 @@ public:
 	bool canRemove() const override { return false; }
 
 private:
-	uint16_t depotId;
+	// uint16_t depotId;
+	uint16_t depotId = 0;
+	bool save = false;
 };
 
 #endif // FS_DEPOTLOCKER_H

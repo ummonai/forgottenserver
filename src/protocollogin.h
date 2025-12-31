@@ -22,7 +22,8 @@ public:
 	};
 	enum
 	{
-		use_checksum = true
+		//use_checksum = true
+		use_checksum = false
 	};
 	static const char* protocol_name() { return "login protocol"; }
 

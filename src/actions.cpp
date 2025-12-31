@@ -335,7 +335,8 @@ ReturnValue Actions::internalUseItem(Player* player, const Position& pos, uint8_
 
 		if (bed->trySleep(player)) {
 			player->setBedItem(bed);
-			g_game.sendOfflineTrainingDialog(player);
+			//g_game.sendOfflineTrainingDialog(player);
+			bed->sleep(player);
 		}
 
 		return RETURNVALUE_NOERROR;
@@ -391,18 +392,18 @@ static void showUseHotkeyMessage(Player* player, const Item* item, uint32_t coun
 {
 	const ItemType& it = Item::items[item->getID()];
 	if (!it.showCount) {
-		player->sendTextMessage(MESSAGE_HOTKEY_PRESSED, fmt::format("Using one of {:s}...", item->getName()));
+		player->sendTextMessage(MESSAGE_INFO_DESCR, fmt::format("Using one of {:s}...", item->getName()));
 	} else if (count == 1) {
-		player->sendTextMessage(MESSAGE_HOTKEY_PRESSED, fmt::format("Using the last {:s}...", item->getName()));
+		player->sendTextMessage(MESSAGE_INFO_DESCR, fmt::format("Using the last {:s}...", item->getName()));
 	} else {
-		player->sendTextMessage(MESSAGE_HOTKEY_PRESSED,
+		player->sendTextMessage(MESSAGE_INFO_DESCR,
 		                        fmt::format("Using one of {:d} {:s}...", count, item->getPluralName()));
 	}
 }
 
 bool Actions::useItem(Player* player, const Position& pos, uint8_t index, Item* item, bool isHotkey)
 {
-	int32_t cooldown = getNumber(ConfigManager::ACTIONS_DELAY_INTERVAL);
+	int32_t cooldown = getNumber(ConfigManager::ACTIONS_DELAY_INTERVAL); // possible changes here
 	player->setNextAction(OTSYS_TIME() + cooldown);
 	player->sendUseItemCooldown(cooldown);
 	if (item->isSupply()) {
@@ -441,7 +442,7 @@ bool Actions::useItem(Player* player, const Position& pos, uint8_t index, Item* 
 bool Actions::useItemEx(Player* player, const Position& fromPos, const Position& toPos, uint8_t toStackPos, Item* item,
                         bool isHotkey, Creature* creature /* = nullptr*/)
 {
-	int32_t cooldown = getNumber(ConfigManager::EX_ACTIONS_DELAY_INTERVAL);
+	int32_t cooldown = getNumber(ConfigManager::EX_ACTIONS_DELAY_INTERVAL); // possible changes here
 	player->setNextAction(OTSYS_TIME() + cooldown);
 	player->sendUseItemCooldown(cooldown);
 
@@ -512,7 +513,7 @@ namespace {
 
 bool enterMarket(Player* player, Item*, const Position&, Thing*, const Position&, bool)
 {
-	player->sendMarketEnter();
+	// player->sendMarketEnter();
 	return true;
 }
 

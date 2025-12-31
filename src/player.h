@@ -103,7 +103,12 @@ public:
 	Player* getPlayer() override { return this; }
 	const Player* getPlayer() const override { return this; }
 
-	void setID() final;
+	// void setID() final;
+	void setID() override {
+		if (id == 0) {
+			id = playerAutoID++;
+		}
+	}
 
 	static MuteCountMap muteCountMap;
 
@@ -186,7 +191,7 @@ public:
 
 	StoreInbox* getStoreInbox() const { return storeInbox; }
 
-	uint32_t getClientIcons() const;
+	uint16_t getClientIcons() const;
 
 	const GuildWarVector& getGuildWarVector() const { return guildWarVector; }
 
@@ -269,10 +274,10 @@ public:
 	uint32_t getLevel() const { return level; }
 	uint8_t getLevelPercent() const { return levelPercent; }
 	uint32_t getMagicLevel() const { return std::max<int32_t>(0, magLevel + varStats[STAT_MAGICPOINTS]); }
-	uint32_t getSpecialMagicLevel(CombatType_t type) const
-	{
-		return std::max<int32_t>(0, specialMagicLevelSkill[combatTypeToIndex(type)]);
-	}
+	// uint32_t getSpecialMagicLevel(CombatType_t type) const
+	// {
+	// 	return std::max<int32_t>(0, specialMagicLevelSkill[combatTypeToIndex(type)]);
+	// }
 	uint32_t getBaseMagicLevel() const { return magLevel; }
 	uint16_t getMagicLevelPercent() const { return magLevelPercent; }
 	uint8_t getSoul() const { return soul; }
@@ -358,6 +363,7 @@ public:
 
 	DepotChest* getDepotChest(uint32_t depotId, bool autoCreate);
 	DepotLocker& getDepotLocker();
+
 	void onReceiveMail() const;
 	bool isNearDepotBox() const;
 
@@ -450,10 +456,10 @@ public:
 	{
 		return std::max<uint16_t>(0, skills[skill].level + varSkills[skill]);
 	}
-	uint16_t getSpecialMagicLevelSkill(CombatType_t type) const
-	{
-		return std::max<int32_t>(0, specialMagicLevelSkill[combatTypeToIndex(type)]);
-	}
+	// uint16_t getSpecialMagicLevelSkill(CombatType_t type) const
+	// {
+	// 	return std::max<int32_t>(0, specialMagicLevelSkill[combatTypeToIndex(type)]);
+	// }
 	uint16_t getBaseSkill(uint8_t skill) const { return skills[skill].level; }
 	uint16_t getSkillPercent(uint8_t skill) const { return skills[skill].percent; }
 
@@ -690,6 +696,19 @@ public:
 			client->sendCreatureShield(creature);
 		}
 	}
+
+	void sendCreatureType(uint32_t creatureId, uint8_t creatureType) {
+		if (client) {
+			client->sendCreatureType(creatureId, creatureType);
+		}
+	}
+
+	void sendCreatureHelpers(uint32_t creatureId, uint16_t helpers) {
+		if (client) {
+			client->sendCreatureHelpers(creatureId, helpers);
+		}
+	}
+
 	void sendSpellCooldown(uint8_t spellId, uint32_t time)
 	{
 		if (client) {
@@ -740,7 +759,7 @@ public:
 			client->sendItems();
 		}
 	}
-	void openSavedContainers();
+	// void openSavedContainers();
 	void sendQuiverUpdate(bool sendAll = false)
 	{
 		if (!sendAll) {
@@ -893,6 +912,13 @@ public:
 			client->sendTextMessage(message);
 		}
 	}
+
+	void sendColoredText(const ColoredText& text) const {
+		if (client) {
+			client->sendColoredText(text);
+		}
+	}
+
 	void sendReLoginWindow(uint8_t unfairFightReduction) const
 	{
 		if (client) {
@@ -1067,11 +1093,12 @@ public:
 			client->sendCombatAnalyzer(type, amount, impactType, target);
 		}
 	}
+	
 	void sendResourceBalance(const ResourceTypes_t resourceType, uint64_t amount)
 	{
-		if (client) {
-			client->sendResourceBalance(resourceType, amount);
-		}
+		// if (client) {
+		// 	client->sendResourceBalance(resourceType, amount);
+		// }
 	}
 
 	void receivePing() { lastPong = OTSYS_TIME(); }
@@ -1104,7 +1131,7 @@ public:
 
 	void updateRegeneration();
 
-	const std::map<uint8_t, OpenContainer>& getOpenContainers() const { return openContainers; }
+	// const std::map<uint8_t, OpenContainer>& getOpenContainers() const { return openContainers; }
 
 	uint16_t getClientExpDisplay() const { return clientExpDisplay; }
 	void setClientExpDisplay(uint16_t value) { clientExpDisplay = value; }

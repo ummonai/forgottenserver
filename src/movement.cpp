@@ -794,11 +794,13 @@ ReturnValue MoveEvent::EquipItem(MoveEvent* moveEvent, Player* player, Item* ite
 		}
 	}
 
+	/*
 	for (int32_t i = 0; i < COMBAT_COUNT; ++i) {
 		if (it.abilities->specialMagicLevelSkill[i]) {
 			player->setSpecialMagicLevelSkill(indexToCombatType(i), it.abilities->specialMagicLevelSkill[i]);
 		}
 	}
+	*/
 
 	for (int32_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; ++i) {
 		if (it.abilities->specialSkills[i]) {
@@ -885,11 +887,13 @@ ReturnValue MoveEvent::DeEquipItem(MoveEvent*, Player* player, Item* item, slots
 		}
 	}
 
+	/*
 	for (int32_t i = 0; i < COMBAT_COUNT; ++i) {
 		if (it.abilities->specialMagicLevelSkill[i] != 0) {
 			player->setSpecialMagicLevelSkill(indexToCombatType(i), -it.abilities->specialMagicLevelSkill[i]);
 		}
 	}
+	*/
 
 	for (int32_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; ++i) {
 		if (it.abilities->specialSkills[i] != 0) {

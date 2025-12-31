@@ -87,8 +87,8 @@ void sighupHandler()
 	g_weapons->loadDefaults();
 	std::cout << "Reloaded weapons." << std::endl;
 
-	g_game.mounts.reload();
-	std::cout << "Reloaded mounts." << std::endl;
+	// g_game.mounts.reload();
+	// std::cout << "Reloaded mounts." << std::endl;
 
 	g_globalEvents->reload();
 	std::cout << "Reloaded globalevents." << std::endl;

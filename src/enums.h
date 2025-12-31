@@ -94,7 +94,7 @@ enum VipStatus_t : uint8_t
 	VIPSTATUS_OFFLINE = 0,
 	VIPSTATUS_ONLINE = 1,
 	VIPSTATUS_PENDING = 2,
-	VIPSTATUS_TRAINING = 3
+	// VIPSTATUS_TRAINING = 3
 };
 
 enum MarketAction_t
@@ -108,6 +108,8 @@ enum MarketRequest_t
 	MARKETREQUEST_OWN_HISTORY = 1,
 	MARKETREQUEST_OWN_OFFERS = 2,
 	MARKETREQUEST_ITEM = 3,
+	//MARKETREQUEST_OWN_OFFERS = 0xFFFE,
+	//MARKETREQUEST_OWN_HISTORY = 0xFFFF
 };
 
 enum MarketOfferState_t
@@ -135,7 +137,7 @@ enum CreatureType_t : uint8_t
 	CREATURETYPE_NPC = 2,
 	CREATURETYPE_SUMMON_OWN = 3,
 	CREATURETYPE_SUMMON_OTHERS = 4,
-	CREATURETYPE_HIDDEN = 5,
+	// CREATURETYPE_HIDDEN = 5,
 };
 
 enum OperatingSystem_t : uint8_t
@@ -163,9 +165,9 @@ enum SpellGroup_t : uint8_t
 	SPELLGROUP_SUPPORT = 3,
 	SPELLGROUP_SPECIAL = 4,
 	// SPELLGROUP_CONJURE = 5,
-	SPELLGROUP_CRIPPLING = 6,
-	SPELLGROUP_FOCUS = 7,
-	SPELLGROUP_ULTIMATESTRIKES = 8,
+	// SPELLGROUP_CRIPPLING = 6,
+	// SPELLGROUP_FOCUS = 7,
+	// SPELLGROUP_ULTIMATESTRIKES = 8,
 };
 
 enum SpellType_t : uint8_t
@@ -193,7 +195,7 @@ enum RaceType_t : uint8_t
 	RACE_UNDEAD,
 	RACE_FIRE,
 	RACE_ENERGY,
-	RACE_INK,
+	// RACE_INK,
 };
 
 enum CombatType_t : uint16_t
@@ -499,11 +501,12 @@ enum SpeechBubble_t
 	SPEECHBUBBLE_NORMAL = 1,
 	SPEECHBUBBLE_TRADE = 2,
 	SPEECHBUBBLE_QUEST = 3,
+	//todo?
 	SPEECHBUBBLE_COMPASS = 4,
 	SPEECHBUBBLE_NORMAL2 = 5,
 	SPEECHBUBBLE_NORMAL3 = 6,
 	SPEECHBUBBLE_HIRELING = 7,
-
+	SPEECHBUBBLE_QUESTTRADER = 4,
 	SPEECHBUBBLE_LAST = SPEECHBUBBLE_HIRELING
 };
 
@@ -541,6 +544,7 @@ struct Outfit_t
 	uint8_t lookFeet = 0;
 	uint8_t lookAddons = 0;
 	uint16_t lookMount = 0;
+     // todo?
 	uint8_t lookMountHead = 0;
 	uint8_t lookMountBody = 0;
 	uint8_t lookMountLegs = 0;
@@ -572,7 +576,8 @@ struct ShopInfo
 
 struct MarketOffer
 {
-	uint64_t price;
+	// uint64_t price;
+	uint32_t price;
 	uint32_t timestamp;
 	uint16_t amount;
 	uint16_t counter;
@@ -598,7 +603,8 @@ struct MarketOfferEx
 	uint32_t id;
 	uint32_t playerId;
 	uint32_t timestamp;
-	uint64_t price;
+	// uint64_t price;
+	uint32_t price;
 	uint16_t amount;
 	uint16_t counter;
 	uint16_t itemId;
@@ -609,7 +615,8 @@ struct MarketOfferEx
 struct HistoryMarketOffer
 {
 	uint32_t timestamp;
-	uint64_t price;
+	// uint64_t price;
+	uint32_t price;
 	uint16_t itemId;
 	uint16_t amount;
 	MarketOfferState_t state;

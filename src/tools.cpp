@@ -398,6 +398,7 @@ MagicEffectNames magicEffectNames = {
     {"yellowsmoke", CONST_ME_YELLOWSMOKE},
     {"greensmoke", CONST_ME_GREENSMOKE},
     {"purplesmoke", CONST_ME_PURPLESMOKE},
+	/*
     {"earlythunder", CONST_ME_EARLY_THUNDER},
     {"bonecapsule", CONST_ME_RAGIAZ_BONECAPSULE},
     {"criticaldamage", CONST_ME_CRITICAL_DAMAGE},
@@ -447,15 +448,16 @@ MagicEffectNames magicEffectNames = {
     {"fatal", CONST_ME_FATAL},
     {"dodge", CONST_ME_DODGE},
     {"hourglass", CONST_ME_HOURGLASS},
-    {"fireworksstar", CONST_ME_FIREWORKSSTAR},
-    {"fireworkscircle", CONST_ME_FIREWORKSCIRCLE},
-    {"ferumbras1", CONST_ME_FERUMBRAS_1},
-    {"gazharagoth", CONST_ME_GAZHARAGOTH},
-    {"madmage", CONST_ME_MAD_MAGE},
-    {"horestis", CONST_ME_HORESTIS},
-    {"devovorga", CONST_ME_DEVOVORGA},
-    {"ferumbras2", CONST_ME_FERUMBRAS_2},
-    {"foam", CONST_ME_FOAM},
+	*/
+    // {"fireworksstar", CONST_ME_FIREWORKSSTAR},
+    // {"fireworkscircle", CONST_ME_FIREWORKSCIRCLE},
+    // {"ferumbras1", CONST_ME_FERUMBRAS_1},
+    // {"gazharagoth", CONST_ME_GAZHARAGOTH},
+    // {"madmage", CONST_ME_MAD_MAGE},
+    // {"horestis", CONST_ME_HORESTIS},
+    // {"devovorga", CONST_ME_DEVOVORGA},
+    // {"ferumbras2", CONST_ME_FERUMBRAS_2},
+    // {"foam", CONST_ME_FOAM},
 };
 
 ShootTypeNames shootTypeNames = {
@@ -509,10 +511,12 @@ ShootTypeNames shootTypeNames = {
     {"envenomedarrow", CONST_ANI_ENVENOMEDARROW},
     {"gloothspear", CONST_ANI_GLOOTHSPEAR},
     {"simplearrow", CONST_ANI_SIMPLEARROW},
+	/*
     {"leafstar", CONST_ANI_LEAFSTAR},
     {"diamondarrow", CONST_ANI_DIAMONDARROW},
     {"spectralbolt", CONST_ANI_SPECTRALBOLT},
     {"royalstar", CONST_ANI_ROYALSTAR},
+	*/
 };
 
 CombatTypeNames combatTypeNames = {
@@ -546,6 +550,7 @@ AmmoTypeNames ammoTypeNames = {
     {"flammingarrow", AMMO_ARROW},
     {"shiverarrow", AMMO_ARROW},
     {"eartharrow", AMMO_ARROW},
+	/*
     {"tarsalarrow", AMMO_ARROW},
     {"vortexbolt", AMMO_BOLT},
     {"prismaticbolt", AMMO_BOLT},
@@ -560,6 +565,7 @@ AmmoTypeNames ammoTypeNames = {
     {"diamondarrow", AMMO_ARROW},
     {"spectralbolt", AMMO_BOLT},
     {"royalstar", AMMO_THROWINGSTAR},
+	*/
 };
 
 WeaponActionNames weaponActionNames = {
@@ -573,12 +579,13 @@ SkullNames skullNames = {
     {"red", SKULL_RED},   {"black", SKULL_BLACK},   {"orange", SKULL_ORANGE},
 };
 
-std::vector<uint16_t> depotBoxes = {
-    ITEM_DEPOT_BOX_I,   ITEM_DEPOT_BOX_II,   ITEM_DEPOT_BOX_III,   ITEM_DEPOT_BOX_IV,  ITEM_DEPOT_BOX_V,
-    ITEM_DEPOT_BOX_VI,  ITEM_DEPOT_BOX_VII,  ITEM_DEPOT_BOX_VIII,  ITEM_DEPOT_BOX_IX,  ITEM_DEPOT_BOX_X,
-    ITEM_DEPOT_BOX_XI,  ITEM_DEPOT_BOX_XII,  ITEM_DEPOT_BOX_XIII,  ITEM_DEPOT_BOX_XIV, ITEM_DEPOT_BOX_XV,
-    ITEM_DEPOT_BOX_XVI, ITEM_DEPOT_BOX_XVII, ITEM_DEPOT_BOX_XVIII, ITEM_DEPOT_BOX_XIX, ITEM_DEPOT_BOX_XX,
-};
+// std::vector<uint16_t> depotBoxes = {
+//     ITEM_DEPOT_BOX_I,   ITEM_DEPOT_BOX_II,   ITEM_DEPOT_BOX_III,   ITEM_DEPOT_BOX_IV,  ITEM_DEPOT_BOX_V,
+//     ITEM_DEPOT_BOX_VI,  ITEM_DEPOT_BOX_VII,  ITEM_DEPOT_BOX_VIII,  ITEM_DEPOT_BOX_IX,  ITEM_DEPOT_BOX_X,
+//     ITEM_DEPOT_BOX_XI,  ITEM_DEPOT_BOX_XII,  ITEM_DEPOT_BOX_XIII,  ITEM_DEPOT_BOX_XIV, ITEM_DEPOT_BOX_XV,
+//     ITEM_DEPOT_BOX_XVI, ITEM_DEPOT_BOX_XVII, ITEM_DEPOT_BOX_XVIII, ITEM_DEPOT_BOX_XIX, ITEM_DEPOT_BOX_XX,
+// };
+std::vector<uint16_t> depotBoxes = {};
 
 uint16_t getDepotBoxId(uint16_t index)
 {

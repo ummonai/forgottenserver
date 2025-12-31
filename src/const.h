@@ -5,18 +5,18 @@
 #define FS_CONST_H
 
 static constexpr int32_t NETWORKMESSAGE_MAXSIZE = 24590;
-static constexpr int32_t MIN_MARKET_FEE = 20;
-static constexpr int32_t MAX_MARKET_FEE = 100000;
+// static constexpr int32_t MIN_MARKET_FEE = 20;
+// static constexpr int32_t MAX_MARKET_FEE = 100000;
 
-enum MagicEffectsType_t : uint8_t
-{
-	MAGIC_EFFECTS_END_LOOP = 0,              // ends the magic effect loop
-	MAGIC_EFFECTS_DELTA = 1,                 // needs uint8_t delta after type to adjust position
-	MAGIC_EFFECTS_DELAY = 2,                 // needs uint16_t delay after type to delay in miliseconds effect display
-	MAGIC_EFFECTS_CREATE_EFFECT = 3,         // needs uint8_t effectid after type
-	MAGIC_EFFECTS_CREATE_DISTANCEEFFECT = 4, // needs uint8_t and deltaX(int8_t), deltaY(int8_t) after type
-	MAGIC_EFFECTS_CREATE_DISTANCEEFFECT_REVERSED = 5, // needs uint8_t and deltaX(int8_t), deltaY(int8_t) after type
-};
+// enum MagicEffectsType_t : uint8_t
+// {
+// 	MAGIC_EFFECTS_END_LOOP = 0,              // ends the magic effect loop
+// 	MAGIC_EFFECTS_DELTA = 1,                 // needs uint8_t delta after type to adjust position
+// 	MAGIC_EFFECTS_DELAY = 2,                 // needs uint16_t delay after type to delay in miliseconds effect display
+// 	MAGIC_EFFECTS_CREATE_EFFECT = 3,         // needs uint8_t effectid after type
+// 	MAGIC_EFFECTS_CREATE_DISTANCEEFFECT = 4, // needs uint8_t and deltaX(int8_t), deltaY(int8_t) after type
+// 	MAGIC_EFFECTS_CREATE_DISTANCEEFFECT_REVERSED = 5, // needs uint8_t and deltaX(int8_t), deltaY(int8_t) after type
+// };
 
 enum MagicEffectClasses : uint8_t
 {
@@ -110,7 +110,7 @@ enum MagicEffectClasses : uint8_t
 	CONST_ME_CRITICAL_DAMAGE = 173,
 	// 174 is empty
 	CONST_ME_PLUNGING_FISH = 175,
-	CONST_ME_BLUECHAIN = 176,
+	CONST_ME_BLUECHAIN = 176, //todo comment from here?
 	CONST_ME_ORANGECHAIN = 177,
 	CONST_ME_GREENCHAIN = 178,
 	CONST_ME_PURPLECHAIN = 179,
@@ -233,7 +233,7 @@ enum ShootType_t : uint8_t
 	CONST_ANI_GLOOTHSPEAR = 53,
 	CONST_ANI_SIMPLEARROW = 54,
 
-	CONST_ANI_LEAFSTAR = 56,
+	CONST_ANI_LEAFSTAR = 56, //todo comment
 	CONST_ANI_DIAMONDARROW = 57,
 	CONST_ANI_SPECTRALBOLT = 58,
 	CONST_ANI_ROYALSTAR = 59,
@@ -242,6 +242,7 @@ enum ShootType_t : uint8_t
 	CONST_ANI_WEAPONTYPE = 0xFE, // 254
 };
 
+/*
 enum SpeakClasses : uint8_t
 {
 	TALKTYPE_SAY = 1,
@@ -264,7 +265,42 @@ enum SpeakClasses : uint8_t
 	TALKTYPE_MONSTER_YELL = 37,
 	TALKTYPE_POTION = 52, // Like MONSTER_SAY but can be disabled in client settings
 };
+*/
 
+enum SpeakClasses : uint8_t {
+	TALKTYPE_SAY = 1,
+	TALKTYPE_WHISPER = 2,
+	TALKTYPE_YELL = 3,
+	TALKTYPE_PRIVATE = 4,
+	TALKTYPE_CHANNEL_Y = 5,
+	TALKTYPE_RVR_CHANNEL = 6,
+	TALKTYPE_RVR_ANSWER = 7,
+	TALKTYPE_RVR_CONTINUE = 8,
+	TALKTYPE_BROADCAST = 9,
+	TALKTYPE_CHANNEL_R1 = 10, //red - #c text
+	TALKTYPE_PRIVATE_RED = 11, //@name@text
+	TALKTYPE_CHANNEL_O = 12, //@name@text
+	TALKTYPE_CHANNEL_R2 = 14, //#d
+	TALKTYPE_MONSTER_SAY = 17,
+	TALKTYPE_MONSTER_YELL = 17,
+
+	// dummys for compilation
+	TALKTYPE_PRIVATE_FROM = 100,
+	TALKTYPE_PRIVATE_TO = 101,
+	TALKTYPE_SPELL = 102, 
+	TALKTYPE_PRIVATE_NP = 103,
+	TALKTYPE_PRIVATE_NP_CONSOLE = 104,
+	TALKTYPE_PRIVATE_PN = 105,
+	TALKTYPE_PRIVATE_RED_FROM = 106, 
+	TALKTYPE_PRIVATE_RED_TO = 107,
+	TALKTYPE_POTION = 108
+
+
+
+
+};
+
+/*
 enum MessageClasses : uint8_t
 {
 	MESSAGE_STATUS_DEFAULT = 17,  // White, bottom + console
@@ -307,6 +343,47 @@ enum MessageClasses : uint8_t
 	MESSAGE_OFFLINE_TRAINING = 50, // White, over player + console
 	MESSAGE_TRANSACTION = 51,      // White, console only
 };
+*/
+
+enum MessageClasses : uint8_t {
+	MESSAGE_STATUS_CONSOLE_YELLOW = 1, /*Yellow message in the console*/
+	MESSAGE_STATUS_CONSOLE_LIGHTBLUE = 4, /*Light blue message in the console*/
+	MESSAGE_STATUS_CONSOLE_ORANGE = 17, /*Orange message in the console*/
+	MESSAGE_STATUS_WARNING = 18, /*Red message in game window and in the console*/
+	MESSAGE_EVENT_ADVANCE = 19, /*White message in game window and in the console*/
+	MESSAGE_EVENT_DEFAULT = 20, /*White message at the bottom of the game window and in the console*/
+	MESSAGE_STATUS_DEFAULT = 21, /*White message at the bottom of the game window and in the console*/
+	MESSAGE_INFO_DESCR = 22, /*Green message in game window and in the console*/
+	MESSAGE_STATUS_SMALL = 23, /*White message at the bottom of the game window"*/
+	MESSAGE_STATUS_CONSOLE_BLUE = 24, /*Blue message in the console*/
+	MESSAGE_STATUS_CONSOLE_RED = 25, /*Red message in the console*/
+
+	// dummys for compliations
+	MESSAGE_STATUS_WARNING2 = 100,
+	MESSAGE_DAMAGE_DEALT = 101,
+	MESSAGE_DAMAGE_RECEIVED = 102,
+	MESSAGE_HEALED = 103,
+	MESSAGE_EXPERIENCE = 104,
+	MESSAGE_DAMAGE_OTHERS = 105,
+	MESSAGE_HEALED_OTHERS = 106,
+	MESSAGE_EXPERIENCE_OTHERS = 107,
+	MESSAGE_LOOT = 108,
+	MESSAGE_TRADE = 109,
+	MESSAGE_GUILD = 110,
+	MESSAGE_PARTY_MANAGEMENT = 111,
+	MESSAGE_PARTY = 112,
+	MESSAGE_REPORT = 113,
+	MESSAGE_HOTKEY_PRESSED = 114,
+	MESSAGE_MARKET = 115,
+	MESSAGE_BEYOND_LAST = 116,
+	MESSAGE_TOURNAMENT_INFO = 117,
+	MESSAGE_ATTENTION = 118,
+	MESSAGE_BOOSTED_CREATURE = 119,
+	MESSAGE_OFFLINE_TRAINING = 120, 
+	MESSAGE_TRANSACTION = 121
+
+
+};
 
 enum FluidColors_t : uint8_t
 {
@@ -318,7 +395,7 @@ enum FluidColors_t : uint8_t
 	FLUID_YELLOW,
 	FLUID_WHITE,
 	FLUID_PURPLE,
-	FLUID_BLACK,
+	// FLUID_BLACK,
 };
 
 enum FluidTypes_t : uint8_t
@@ -331,7 +408,7 @@ enum FluidTypes_t : uint8_t
 	FLUID_LEMONADE = FLUID_YELLOW,
 	FLUID_MILK = FLUID_WHITE,
 	FLUID_MANA = FLUID_PURPLE,
-	FLUID_INK = FLUID_BLACK,
+	// FLUID_INK = FLUID_BLACK,
 
 	FLUID_LIFE = FLUID_RED + 8,
 	FLUID_OIL = FLUID_BROWN + 8,
@@ -353,13 +430,13 @@ enum FluidTypes_t : uint8_t
 
 const uint8_t reverseFluidMap[] = {
     FLUID_EMPTY, FLUID_WATER, FLUID_MANA,     FLUID_BEER, FLUID_EMPTY, FLUID_BLOOD,
-    FLUID_SLIME, FLUID_EMPTY, FLUID_LEMONADE, FLUID_MILK, FLUID_INK,
+    FLUID_SLIME, FLUID_EMPTY, FLUID_LEMONADE, FLUID_MILK //, FLUID_INK,
 };
 
 const uint8_t clientToServerFluidMap[] = {
     FLUID_EMPTY,      FLUID_WATER,       FLUID_MANA, FLUID_BEER, FLUID_MUD,  FLUID_BLOOD, FLUID_SLIME,
     FLUID_RUM,        FLUID_LEMONADE,    FLUID_MILK, FLUID_WINE, FLUID_LIFE, FLUID_URINE, FLUID_OIL,
-    FLUID_FRUITJUICE, FLUID_COCONUTMILK, FLUID_TEA,  FLUID_MEAD, FLUID_INK,
+    FLUID_FRUITJUICE, FLUID_COCONUTMILK, FLUID_TEA,  FLUID_MEAD //, FLUID_INK,
 };
 
 enum ClientFluidTypes_t : uint8_t
@@ -374,12 +451,12 @@ enum ClientFluidTypes_t : uint8_t
 	CLIENTFLUID_BROWN = 7,
 	CLIENTFLUID_YELLOW = 8,
 	CLIENTFLUID_WHITE = 9,
-	CLIENTFLUID_BLACK = 18,
+	// CLIENTFLUID_BLACK = 18,
 };
 
 const uint8_t fluidMap[] = {
     CLIENTFLUID_EMPTY,  CLIENTFLUID_BLUE,  CLIENTFLUID_RED,    CLIENTFLUID_BROWN_1, CLIENTFLUID_GREEN,
-    CLIENTFLUID_YELLOW, CLIENTFLUID_WHITE, CLIENTFLUID_PURPLE, CLIENTFLUID_BLACK,
+    CLIENTFLUID_YELLOW, CLIENTFLUID_WHITE, CLIENTFLUID_PURPLE //, CLIENTFLUID_BLACK,
 };
 
 enum SquareColor_t : uint8_t
@@ -397,7 +474,8 @@ enum TextColor_t : uint8_t
 	TEXTCOLOR_DARKRED = 108,
 	TEXTCOLOR_LIGHTGREY = 129,
 	TEXTCOLOR_SKYBLUE = 143,
-	TEXTCOLOR_PURPLE = 154,
+	// TEXTCOLOR_PURPLE = 154,
+	TEXTCOLOR_PURPLE = 155,
 	TEXTCOLOR_ELECTRICPURPLE = 155,
 	TEXTCOLOR_RED = 180,
 	TEXTCOLOR_PASTELRED = 194,
@@ -541,13 +619,17 @@ enum item_t : uint16_t
 
 	ITEM_MAGICWALL = 1497,
 	ITEM_MAGICWALL_PERSISTENT = 1498,
-	ITEM_MAGICWALL_SAFE = 11098,
-	ITEM_MAGICWALL_NOPVP = 20669,
+	// ITEM_MAGICWALL_SAFE = 11098,
+	// ITEM_MAGICWALL_NOPVP = 20669,
+	ITEM_MAGICWALL_SAFE = 1497,
+	ITEM_MAGICWALL_NOPVP = 1497,
 
 	ITEM_WILDGROWTH = 1499,
 	ITEM_WILDGROWTH_PERSISTENT = 2721,
-	ITEM_WILDGROWTH_SAFE = 11099,
-	ITEM_WILDGROWTH_NOPVP = 20670,
+	// ITEM_WILDGROWTH_SAFE = 11099,
+	// ITEM_WILDGROWTH_NOPVP = 20670,
+	ITEM_WILDGROWTH_SAFE = 1499,
+	ITEM_WILDGROWTH_NOPVP = 1499,
 
 	ITEM_BAG = 1987,
 	ITEM_SHOPPING_BAG = 23782,
@@ -559,31 +641,31 @@ enum item_t : uint16_t
 
 	ITEM_DEPOT = 2594,
 	ITEM_LOCKER = 2589,
-	ITEM_INBOX = 14404,
-	ITEM_MARKET = 14405,
-	ITEM_STORE_INBOX = 26052,
+	// ITEM_INBOX = 14404,
+	// ITEM_MARKET = 14405,
+	// ITEM_STORE_INBOX = 26052,
 
-	// move to separate enum class?
-	ITEM_DEPOT_BOX_I = 25453,
-	ITEM_DEPOT_BOX_II = 25454,
-	ITEM_DEPOT_BOX_III = 25455,
-	ITEM_DEPOT_BOX_IV = 25456,
-	ITEM_DEPOT_BOX_V = 25457,
-	ITEM_DEPOT_BOX_VI = 25458,
-	ITEM_DEPOT_BOX_VII = 25459,
-	ITEM_DEPOT_BOX_VIII = 25460,
-	ITEM_DEPOT_BOX_IX = 25461,
-	ITEM_DEPOT_BOX_X = 25462,
-	ITEM_DEPOT_BOX_XI = 25463,
-	ITEM_DEPOT_BOX_XII = 25464,
-	ITEM_DEPOT_BOX_XIII = 25465,
-	ITEM_DEPOT_BOX_XIV = 25466,
-	ITEM_DEPOT_BOX_XV = 25467,
-	ITEM_DEPOT_BOX_XVI = 25468,
-	ITEM_DEPOT_BOX_XVII = 25469,
-	ITEM_DEPOT_BOX_XVIII = 34571,
-	ITEM_DEPOT_BOX_XIX = 44714,
-	ITEM_DEPOT_BOX_XX = 44715,
+	// // move to separate enum class?
+	// ITEM_DEPOT_BOX_I = 25453,
+	// ITEM_DEPOT_BOX_II = 25454,
+	// ITEM_DEPOT_BOX_III = 25455,
+	// ITEM_DEPOT_BOX_IV = 25456,
+	// ITEM_DEPOT_BOX_V = 25457,
+	// ITEM_DEPOT_BOX_VI = 25458,
+	// ITEM_DEPOT_BOX_VII = 25459,
+	// ITEM_DEPOT_BOX_VIII = 25460,
+	// ITEM_DEPOT_BOX_IX = 25461,
+	// ITEM_DEPOT_BOX_X = 25462,
+	// ITEM_DEPOT_BOX_XI = 25463,
+	// ITEM_DEPOT_BOX_XII = 25464,
+	// ITEM_DEPOT_BOX_XIII = 25465,
+	// ITEM_DEPOT_BOX_XIV = 25466,
+	// ITEM_DEPOT_BOX_XV = 25467,
+	// ITEM_DEPOT_BOX_XVI = 25468,
+	// ITEM_DEPOT_BOX_XVII = 25469,
+	// ITEM_DEPOT_BOX_XVIII = 34571,
+	// ITEM_DEPOT_BOX_XIX = 44714,
+	// ITEM_DEPOT_BOX_XX = 44715,
 
 	ITEM_MALE_CORPSE = 3058,
 	ITEM_FEMALE_CORPSE = 3065,

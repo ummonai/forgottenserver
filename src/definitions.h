@@ -5,12 +5,12 @@
 #define FS_DEFINITIONS_H
 
 static constexpr auto STATUS_SERVER_NAME = "The Forgotten Server";
-static constexpr auto STATUS_SERVER_VERSION = "1.6";
+static constexpr auto STATUS_SERVER_VERSION = "1.6 (7.72 downgrade)";
 static constexpr auto STATUS_SERVER_DEVELOPERS = "The Forgotten Server Team";
 
-static constexpr auto CLIENT_VERSION_MIN = 1310;
-static constexpr auto CLIENT_VERSION_MAX = 1311;
-static constexpr auto CLIENT_VERSION_STR = "13.10";
+static constexpr auto CLIENT_VERSION_MIN = 760;
+static constexpr auto CLIENT_VERSION_MAX = 772;
+static constexpr auto CLIENT_VERSION_STR = "7.72";
 
 static constexpr auto AUTHENTICATOR_DIGITS = 6U;
 static constexpr auto AUTHENTICATOR_PERIOD = 30U;
@@ -50,6 +50,7 @@ static constexpr auto AUTHENTICATOR_PERIOD = 30U;
 #pragma warning(disable : 4319) // '~': zero extending 'unsigned int' to 'lua_Number' of greater size
 #pragma warning(disable : 4351) // new behavior: elements of array will be default initialized
 #pragma warning(disable : 4458) // declaration hides class member
+#pragma warning(disable : 4996) // inet_addr conversion
 #endif
 
 #ifndef _WIN32_WINNT

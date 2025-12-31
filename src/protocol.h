@@ -53,8 +53,8 @@ protected:
 	}
 	void enableXTEAEncryption() { encryptionEnabled = true; }
 	void setXTEAKey(const xtea::key& key) { this->key = xtea::expand_key(key); }
-	void setChecksumMode(checksumMode_t newMode) { checksumMode = newMode; }
-
+	// void setChecksumMode(checksumMode_t newMode) { checksumMode = newMode; }
+	void disableChecksum() { checksumEnabled = false; }
 	static bool RSA_decrypt(NetworkMessage& msg);
 
 	void setRawMessages(bool value) { rawMessages = value; }
@@ -68,9 +68,10 @@ private:
 
 	const ConnectionWeak_ptr connection;
 	xtea::round_keys key;
-	uint32_t sequenceNumber = 0;
+	// uint32_t sequenceNumber = 0;
 	bool encryptionEnabled = false;
-	checksumMode_t checksumMode = CHECKSUM_ADLER;
+	// checksumMode_t checksumMode = CHECKSUM_ADLER;
+	bool checksumEnabled = false;
 	bool rawMessages = false;
 };
 

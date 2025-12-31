@@ -39,17 +39,21 @@ Container::Container(Tile* tile) : Container(ITEM_BROWSEFIELD, 30, false, true)
 
 Container::~Container()
 {
-	if (getID() == ITEM_BROWSEFIELD) {
-		g_game.browseFields.erase(getTile());
+	// if (getID() == ITEM_BROWSEFIELD) {
+	// 	g_game.browseFields.erase(getTile());
 
-		for (Item* item : itemlist) {
-			item->setParent(parent);
-		}
-	} else {
-		for (Item* item : itemlist) {
-			item->setParent(nullptr);
-			item->decrementReferenceCounter();
-		}
+	// 	for (Item* item : itemlist) {
+	// 		item->setParent(parent);
+	// 	}
+	// } else {
+	// 	for (Item* item : itemlist) {
+	// 		item->setParent(nullptr);
+	// 		item->decrementReferenceCounter();
+	// 	}
+	// }
+	for (Item* item : itemlist) {
+		item->setParent(nullptr);
+		item->decrementReferenceCounter();
 	}
 }
 
@@ -78,7 +82,8 @@ std::string Container::getName(bool addArticle /* = false*/) const
 	return getNameDescription(it, this, -1, addArticle);
 }
 
-bool Container::hasParent() const { return getID() != ITEM_BROWSEFIELD && !dynamic_cast<const Player*>(getParent()); }
+// bool Container::hasParent() const { return getID() != ITEM_BROWSEFIELD && !dynamic_cast<const Player*>(getParent()); }
+bool Container::hasParent() const { return dynamic_cast<const Player*>(getParent()) == nullptr; }
 
 void Container::addItem(Item* item)
 {
@@ -140,6 +145,35 @@ void Container::updateItemWeight(int32_t diff)
 }
 
 uint32_t Container::getWeight() const { return Item::getWeight() + totalWeight; }
+
+std::string Container::getContentDescription() const
+{
+	std::ostringstream os;
+	return getContentDescription(os).str();
+}
+
+std::ostringstream& Container::getContentDescription(std::ostringstream& os) const
+{
+	bool firstitem = true;
+	for (ContainerIterator it = iterator(); it.hasNext(); it.advance()) {
+		Item* item = *it;
+		Container* container = item->getContainer();
+		if (container && !container->empty()) {
+			continue;
+		}
+		if (firstitem) {
+			firstitem = false;
+
+		} else {
+			os << ", ";
+		}
+		os << item->getNameDescription();
+	}
+	if (firstitem) {
+		os << "nothing";
+	}
+	return os;
+}
 
 Item* Container::getItemByIndex(size_t index) const
 {
@@ -653,7 +687,8 @@ Thing* Container::getThing(size_t index) const { return getItemByIndex(index); }
 void Container::postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t)
 {
 	Cylinder* topParent = getTopParent();
-	if (topParent->getCreature()) {
+	// if (topParent->getCreature()) {
+	if (topParent->getCreature() || dynamic_cast<DepotLocker*>(topParent)) {
 		topParent->postAddNotification(thing, oldParent, index, LINK_TOPPARENT);
 	} else if (topParent == this) {
 		// let the tile class notify surrounding players
@@ -668,7 +703,8 @@ void Container::postAddNotification(Thing* thing, const Cylinder* oldParent, int
 void Container::postRemoveNotification(Thing* thing, const Cylinder* newParent, int32_t index, cylinderlink_t)
 {
 	Cylinder* topParent = getTopParent();
-	if (topParent->getCreature()) {
+	// if (topParent->getCreature()) {
+	if (topParent->getCreature() || dynamic_cast<DepotLocker*>(topParent)) {
 		topParent->postRemoveNotification(thing, newParent, index, LINK_TOPPARENT);
 	} else if (topParent == this) {
 		// let the tile class notify surrounding players

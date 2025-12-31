@@ -93,6 +93,11 @@ void NetworkMessage::addItem(uint16_t id, uint8_t count)
 
 	add<uint16_t>(it.clientId);
 
+	if (it.stackable || it.isSplash() || it.isFluidContainer()) {
+		addByte(count);
+	}
+
+	/*
 	if (it.stackable) {
 		addByte(count);
 	} else if (it.isSplash() || it.isFluidContainer()) {
@@ -116,6 +121,7 @@ void NetworkMessage::addItem(uint16_t id, uint8_t count)
 		addByte(2);       // direction
 		addByte(0x01);    // is visible (bool)
 	}
+	*/
 }
 
 void NetworkMessage::addItem(const Item* item)
@@ -124,6 +130,14 @@ void NetworkMessage::addItem(const Item* item)
 
 	add<uint16_t>(it.clientId);
 
+	if (it.stackable) {
+		addByte(std::min<uint16_t>(0xFF, item->getItemCount()));
+	} else if (it.isSplash() || it.isFluidContainer()) {
+		addByte(item->getSubType());
+	}
+
+
+	/*
 	if (it.stackable) {
 		addByte(std::min<uint16_t>(0xFF, item->getItemCount()));
 	} else if (it.isSplash() || it.isFluidContainer()) {
@@ -188,6 +202,7 @@ void NetworkMessage::addItem(const Item* item)
 		addByte(podium->hasFlag(PODIUM_SHOW_PLATFORM) ? 0x01 : 0x00);
 		return;
 	}
+	*/
 }
 
 void NetworkMessage::addItemId(uint16_t itemId) { add<uint16_t>(Item::items[itemId].clientId); }

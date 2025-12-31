@@ -7,6 +7,7 @@
 
 #include "tools.h"
 
+// remove/limit max items? set paginated to false?
 DepotChest::DepotChest(uint16_t type, bool paginated /*= true*/) :
     Container{type, items[type].maxItems, true, paginated}
 {}
@@ -49,6 +50,7 @@ void DepotChest::postAddNotification(Thing* thing, const Cylinder* oldParent, in
 	if (parent) {
 		parent->postAddNotification(thing, oldParent, index, LINK_PARENT);
 	}
+	save = true;
 }
 
 void DepotChest::postRemoveNotification(Thing* thing, const Cylinder* newParent, int32_t index, cylinderlink_t)
@@ -57,12 +59,13 @@ void DepotChest::postRemoveNotification(Thing* thing, const Cylinder* newParent,
 	if (parent) {
 		parent->postRemoveNotification(thing, newParent, index, LINK_PARENT);
 	}
+	save = true;
 }
 
-Cylinder* DepotChest::getParent() const
-{
-	if (parent) {
-		return parent->getParent();
-	}
-	return nullptr;
-}
+// Cylinder* DepotChest::getParent() const
+// {
+// 	if (parent) {
+// 		return parent->getParent();
+// 	}
+// 	return nullptr;
+// }
